@@ -1,0 +1,89 @@
+// cv-data.js
+export const cvData = {
+  "personalInfo": {
+    "name": "JEAN DUPONT",
+    "position": "Développeur Full Stack",
+    "email": "jean.dupont@email.com",
+    "phone": "+33 6 12 34 56 78",
+    "location": "Paris, France",
+    "github": "github.com/jdupont",
+    "linkedin": "linkedin.com/in/jeandupont"
+  },
+  "about": "Développeur Full Stack avec 5 ans d'expérience dans la création d'applications web performantes et évolutives. Expertise en JavaScript, React, Node.js et bases de données SQL/NoSQL. Passionné par l'architecture logicielle, les bonnes pratiques de développement et l'amélioration continue.",
+  "skills": [
+    {
+      "category": "Langages de programmation",
+      "items": [
+        "JavaScript",
+        "TypeScript",
+        "Python",
+        "PHP",
+        "SQL"
+      ]
+    },
+    {
+      "category": "Front-end",
+      "items": [
+        "React",
+        "Vue.js",
+        "HTML5/CSS3",
+        "Tailwind"
+      ]
+    },
+    {
+      "category": "Back-end",
+      "items": [
+        "Node.js",
+        "Express",
+        "Django",
+        "Laravel"
+      ]
+    },
+    {
+      "category": "Bases de données",
+      "items": [
+        "MongoDB",
+        "PostgreSQL",
+        "MySQL",
+        "Redis"
+      ]
+    }
+  ],
+  "experience": [
+    {
+      "title": "Développeur Full Stack Senior",
+      "company": "TechVision Solutions, Paris",
+      "dates": "Janvier 2022 - Présent",
+      "responsibilities": [
+        "Développement d'une plateforme SaaS B2B utilisée par plus de 50 000 utilisateurs",
+        "Mise en œuvre d'une architecture microservices avec Node.js et Docker, réduisant les temps de déploiement de 70%",
+        "Refonte de l'interface utilisateur avec React et Tailwind CSS, améliorant les métriques d'engagement de 35%",
+        "Mise en place d'une suite de tests automatisés couvrant 85% du code"
+      ]
+    },
+    {
+      "title": "Développeur Front-End",
+      "company": "Innovate Digital, Lyon",
+      "dates": "Février 2020 - Décembre 2021",
+      "responsibilities": [
+        "Développement d'applications web responsive pour divers clients dans les secteurs de la finance et du e-commerce",
+        "Création de composants réutilisables avec Vue.js et implémentation d'une bibliothèque de composants interne",
+        "Optimisation des performances front-end, réduisant le temps de chargement des pages de 40%"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "degree": "Master en Ingénierie Informatique",
+      "institution": "École Supérieure d'Informatique, Paris",
+      "dates": "2016 - 2018",
+      "description": "Spécialisation en Développement Web et Mobile. Mention Très Bien."
+    },
+    {
+      "degree": "Licence en Informatique",
+      "institution": "Université de Paris",
+      "dates": "2013 - 2016",
+      "description": "Option Programmation et Algorithmique. Mention Bien."
+    },
+  ],
+};
