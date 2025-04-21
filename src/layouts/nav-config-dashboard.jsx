@@ -55,6 +55,7 @@ export const navData = [
       },
       { title: 'Two', path: paths.dashboard.two, icon: ICONS.ecommerce },
       { title: 'Three', path: paths.dashboard.three, icon: ICONS.analytics },
+      { title: 'Ollama Test', path: paths.dashboard.ollamaTest, icon: ICONS.chat },
     ],
   },
   /**

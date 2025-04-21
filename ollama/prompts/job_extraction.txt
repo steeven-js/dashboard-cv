@@ -1,0 +1,15 @@
+Extract the following information from this job posting:
+- Job title
+- Company name
+- Location
+- Skills required (as a list)
+- Salary (if available)
+- Employment type (full-time, part-time, contract, etc.)
+- Date posted (if available)
+
+Format the response as a JSON object with these fields:
+title, company, location, skills, salary, employment_type, date_posted.
+
+Here's the job posting:
+
+{text}

@@ -1,0 +1,14 @@
+{
+    "models": [
+        {
+            "name": "llama3",
+            "parameters": {
+                "temperature": 0.1,
+                "top_p": 0.95,
+                "repetition_penalty": 1.1
+            },
+            "description": "Modèle Llama 3 pour l'extraction d'informations à partir d'offres d'emploi"
+        }
+    ],
+    "default_model": "llama3"
+}
