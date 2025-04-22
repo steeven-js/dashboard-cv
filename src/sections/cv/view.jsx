@@ -1,22 +1,22 @@
 // CVWithPDF.jsx - Version optimisée pour format A4 sans espaces vides
 import React, { useState } from 'react';
-import { Container, Box, Typography, Button, Paper, Grid } from '@mui/material';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-
-// Import CV data
-import { cvData } from 'src/data';
-
 // Import react-pdf components
 import {
-  PDFDownloadLink,
-  PDFViewer,
-  Document,
   Page,
   Text,
   View,
-  StyleSheet,
   Font,
+  Document,
+  PDFViewer,
+  StyleSheet,
+  PDFDownloadLink,
 } from '@react-pdf/renderer';
+
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { Box, Grid, Paper, Button, Container, Typography } from '@mui/material';
+
+// Import CV data
+import { cvData } from 'src/data';
 
 // Import original CV component
 import OriginalCV from './original-cv';
@@ -388,7 +388,7 @@ const CVWithPDF = () => {
               <PDFViewer
                 width="595"
                 height="842"
-                showToolbar={true}
+                showToolbar
                 style={{
                   border: 'none',
                   maxWidth: '100%',
