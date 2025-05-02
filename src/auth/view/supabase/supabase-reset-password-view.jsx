@@ -1,9 +1,12 @@
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
+import { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Box from '@mui/material/Box';
+import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -29,6 +32,20 @@ export const ResetPasswordSchema = zod.object({
 
 export function SupabaseResetPasswordView() {
   const router = useRouter();
+  const [errorMessage, setErrorMessage] = useState('');
+  const [cooldownTime, setCooldownTime] = useState(0);
+  const [isRequestSent, setIsRequestSent] = useState(false);
+
+  // Countdown timer for cooldown
+  useEffect(() => {
+    let timer;
+    if (cooldownTime > 0) {
+      timer = setTimeout(() => {
+        setCooldownTime(prevTime => prevTime - 1);
+      }, 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [cooldownTime]);
 
   const defaultValues = {
     email: '',
@@ -46,11 +63,27 @@ export function SupabaseResetPasswordView() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await resetPassword({ email: data.email });
+      if (cooldownTime > 0) {
+        setErrorMessage(`Please wait ${cooldownTime} seconds before trying again.`);
+        return;
+      }
 
+      await resetPassword({ email: data.email });
+      setIsRequestSent(true);
+      setErrorMessage('');
       router.push(paths.auth.supabase.verify);
     } catch (error) {
       console.error(error);
+
+      // Handle rate limiting errors
+      if (error.message && error.message.includes('security purposes') && error.message.includes('seconds')) {
+        const waitTimeMatch = error.message.match(/(\d+) seconds/);
+        const waitTime = waitTimeMatch ? parseInt(waitTimeMatch[1], 10) : 30;
+        setCooldownTime(waitTime);
+        setErrorMessage(`For security purposes, please wait ${waitTime} seconds before trying again.`);
+      } else {
+        setErrorMessage(error.message || 'Failed to send password reset link. Please try again later.');
+      }
     }
   });
 
@@ -62,7 +95,26 @@ export function SupabaseResetPasswordView() {
         label="Email address"
         placeholder="example@gmail.com"
         slotProps={{ inputLabel: { shrink: true } }}
+        disabled={cooldownTime > 0 || isRequestSent}
       />
+
+      {!!errorMessage && (
+        <Alert severity="error" sx={{ mb: 0 }}>
+          {errorMessage}
+        </Alert>
+      )}
+
+      {cooldownTime > 0 && (
+        <Typography variant="body2" sx={{ color: 'text.secondary', textAlign: 'center' }}>
+          You can request again in {cooldownTime} seconds
+        </Typography>
+      )}
+
+      {isRequestSent && (
+        <Alert severity="success" sx={{ mb: 0 }}>
+          Password reset link sent! Please check your email.
+        </Alert>
+      )}
 
       <Button
         fullWidth
@@ -71,6 +123,7 @@ export function SupabaseResetPasswordView() {
         variant="contained"
         loading={isSubmitting}
         loadingIndicator="Send request..."
+        disabled={cooldownTime > 0 || isRequestSent}
       >
         Send request
       </Button>

@@ -1,9 +1,8 @@
 import React from 'react';
 
-import { Box, Typography, Paper, Grid, Chip, Divider } from '@mui/material';
+import { Box, Grid, Chip, Paper, Typography } from '@mui/material';
 
-const OriginalCV = () => {
-  return (
+const OriginalCV = () => (
     <Paper sx={{ p: 4, maxWidth: '800px', mx: 'auto' }}>
       {/* En-tête avec Nom et Coordonnées */}
       <Box sx={{ mb: 4 }}>
@@ -314,6 +313,5 @@ const OriginalCV = () => {
       </Box>
     </Paper>
   );
-};
 
 export default OriginalCV;

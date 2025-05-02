@@ -1,25 +1,24 @@
 // CVWithPDF.jsx
 import React, { useState } from 'react';
-import { Container, Box, Typography, Button, Paper, Grid } from '@mui/material';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-
-// Import CV data
-import cvData from '../../data/cv-data.json';
-
 // Import react-pdf components
 import {
-  PDFDownloadLink,
-  PDFViewer,
-  Document,
   Page,
   Text,
   View,
-  StyleSheet,
   Font,
+  Document,
+  PDFViewer,
+  StyleSheet,
+  PDFDownloadLink,
 } from '@react-pdf/renderer';
+
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { Box, Grid, Paper, Button, Container, Typography } from '@mui/material';
 
 // Import original CV component
 import OriginalCV from './original-cv';
+// Import CV data
+import cvData from '../../data/cv-data.json';
 
 // Register Font - utilisation de polices plus fiables accessibles via CDN
 Font.register({

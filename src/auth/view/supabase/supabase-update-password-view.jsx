@@ -1,6 +1,6 @@
 import { z as zod } from 'zod';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useState, useEffect } from 'react';
 import { useBoolean } from 'minimal-shared/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -12,7 +12,9 @@ import InputAdornment from '@mui/material/InputAdornment';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
+import { RouterLink } from 'src/routes/components';
 
+import { supabase } from 'src/lib/supabase';
 import { NewPasswordIcon } from 'src/assets/icons';
 
 import { Iconify } from 'src/components/iconify';
@@ -45,6 +47,24 @@ export function SupabaseUpdatePasswordView() {
   const showPassword = useBoolean();
 
   const [errorMessage, setErrorMessage] = useState('');
+  const [sessionChecked, setSessionChecked] = useState(false);
+  const [hasSession, setHasSession] = useState(false);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        setHasSession(!!data.session);
+      } catch (error) {
+        console.error("Error checking session:", error);
+        setHasSession(false);
+      } finally {
+        setSessionChecked(true);
+      }
+    };
+
+    checkSession();
+  }, []);
 
   const defaultValues = {
     password: '',
@@ -64,14 +84,45 @@ export function SupabaseUpdatePasswordView() {
   const onSubmit = handleSubmit(async (data) => {
     try {
       await updatePassword({ password: data.password });
-
       router.push(paths.dashboard.root);
     } catch (error) {
       console.error(error);
       const feedbackMessage = getErrorMessage(error);
-      setErrorMessage(feedbackMessage);
+
+      if (feedbackMessage.includes('Auth session missing')) {
+        setErrorMessage('Authentication session expired. Please go back to the reset password page and try again.');
+      } else {
+        setErrorMessage(feedbackMessage);
+      }
     }
   });
+
+  if (sessionChecked && !hasSession) {
+    return (
+      <>
+        <FormHead
+          icon={<NewPasswordIcon />}
+          title="Session Expired"
+          description="Your password reset session has expired or is invalid."
+        />
+
+        <Alert severity="error" sx={{ mb: 3 }}>
+          Your authentication session is missing or has expired. Please try resetting your password again.
+        </Alert>
+
+        <Box sx={{ textAlign: 'center', mt: 3 }}>
+          <Button
+            component={RouterLink}
+            href={paths.auth.supabase.resetPassword}
+            size="large"
+            variant="contained"
+          >
+            Return to Reset Password
+          </Button>
+        </Box>
+      </>
+    );
+  }
 
   const renderForm = () => (
     <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>

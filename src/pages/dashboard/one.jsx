@@ -1,8 +1,7 @@
-import CVWithPDF from 'src/sections/cv/view';
+import { CONFIG } from 'src/global-config';
 
 // import { BlankView } from 'src/sections/blank/view';
-
-import { CONFIG } from 'src/global-config';
+import CVWithPDF from 'src/sections/cv/view';
 
 // ----------------------------------------------------------------------
 
