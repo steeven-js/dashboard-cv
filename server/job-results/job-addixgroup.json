@@ -1,0 +1,42 @@
+{
+  "title": "Développeur Back-End H/F",
+  "company": "AddixGroup",
+  "location": "Marseille - 13",
+  "contractType": "CDI",
+  "skills": [
+    "Java",
+    "PHP",
+    "SQL",
+    "PostgreSQL",
+    "Oracle",
+    "REST",
+    "SOAP",
+    "ETL",
+    "Low-code"
+  ],
+  "salary": "35 000 - 50 000 € / an",
+  "experience": "Expérience de 5 ans minimum en développement backend",
+  "education": "Formation Bac +3 à Bac +5 en développement informatique",
+  "summary": "Développeur Backend travaillant en collaboration avec l'intégrateur applicatif et l'équipe projet pour développer et maintenir les solutions de dématérialisation des processus métiers",
+  "responsibilities": [
+    "Développer des composants backend pour les processus dématérialisés sur la plateforme low-code",
+    "Concevoir et développer des webservices pour assurer l'interopérabilité avec le SI existant",
+    "Optimiser les bases de données et requêtes SQL/PostgreSQL pour garantir la performance des applications",
+    "Assurer l'intégration des flux de données via des ETL",
+    "Participer à la revue de code et aux tests (unitaires, intégration)",
+    "Rédiger la documentation technique et assurer la veille technologique"
+  ],
+  "benefits": [
+    "Télétravail occasionnel"
+  ],
+  "additionalInfo": {
+    "companyDescription": "AddixGroup est une société de conseil et réalisation en développement applicatif, data, cloud et cybersécurité. En somme, un partenaire en transformation digitale des entreprises, reconnu pour son professionnalisme et son approche clients / consultants.",
+    "companyCulture": "Notre singularité : nous cherchons véritablement à développer nos consultants en portant leur carrière à la hauteur de leurs espérances. Nous les poussons dans leur formation et progression au travers de projets stimulants au sein d'entreprises à impact ou en phase de transformation vers un modèle plus responsable et durable.",
+    "companyServices": "Nous aidons nos clients à réussir leur transformation numérique en travaillant aux côtés de leurs équipes sur : le développement et la maintenance de produits performants et durables avec un excellent niveau technique ; l'évaluation du niveau de sûreté / cybersécurité en combinant audit et pentests ainsi que la mise en oeuvre d'actions de remédiation ; l'évaluation, la mise en oeuvre et la migration de solutions cloud agnostiques ; l'exploitation de leur potentiel data en leviers de performance business."
+  },
+  "workModel": "🏠 Télétravail occasionnel",
+  "seniority": "Exp. + 7 ans",
+  "url": "https://www.hellowork.com/fr-fr/emplois/64037460.html",
+  "dataSource": "Extraction manuelle à partir du contenu HTML",
+  "extractionDate": "2025-04-22"
+}

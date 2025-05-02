@@ -1,0 +1,30 @@
+{
+  "title": "Développeur React - Next H/F Amiltone",
+  "company": "Amiltone",
+  "location": "Marseille",
+  "contractType": "CDI",
+  "skills": [
+    "SQL",
+    "PostgreSQL",
+    "Go",
+    "Git"
+  ],
+  "salary": "36 499 €",
+  "experience": "",
+  "education": "Bac +5",
+  "summary": "Alors ? Prêt à devenir Amiltonien ?N'hésitez pas à postuler si vous vous reconnaissez :)Diplômé Bac +4/5 (Master ou école d'ingénieur), vous avez au moins 3 ans d'expérience en développement ReactJS/NextJS.Vous aimez découvrir de nouveaux contextes fonctionnels et comprendre les objectifs des applications que vous développez.",
+  "responsibilities": [
+    "Vos missions ?Intégré à nos équipes sur notre Factory ou chez nos clients, vous interviendrez sur un projet de développement front-end.",
+    "En tant que Développeur ReactJS / NextJS, vous assurez les missions suivantes :- Le développement des tâches qui vous sont assignées en respectant les spécifications- Le Code Review avec les autres développeurs du projet- L'écriture de tests unitaires et fonctionnels durant vos développements- La participation au Daily Scrum Meeting, Sprint Revue, Rétro de Sprint et Planning PokerLa stack technique :- Front End : ReactJS- Framework : NextJS- BDD : SQL (MySQL, PostgreSQL, SQLServer)- Outils : Git, Jenkins, Jira."
+  ],
+  "benefits": [
+    "télétravail",
+    "formation",
+    "prime",
+    "participation",
+    "intéressement"
+  ],
+  "url": "https://www.hellowork.com/fr-fr/emplois/64528184.html",
+  "analyzedAt": "2025-04-22T09:14:37.634Z",
+  "source": "direct-html-extraction"
+}

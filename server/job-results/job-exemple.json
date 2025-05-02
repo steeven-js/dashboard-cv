@@ -1,0 +1,41 @@
+{
+  "title": "Développeur Back-End H/F",
+  "company": "Free",
+  "location": "Marseille 15e - 13",
+  "contractType": "CDI",
+  "skills": [
+    "PHP",
+    "PERL",
+    "Python",
+    "VueJS",
+    "API Platform",
+    "FastApi",
+    "Quasar",
+    "Kafka",
+    "Airflow",
+    "PostgreSQL",
+    "Linux"
+  ],
+  "salary": "41 000 € / an (estimation)",
+  "experience": "Expérience significative dans le développement web à forte charge",
+  "education": "Diplômé(e) en informatique ou autodidacte",
+  "summary": "Développeur Back-End pour participer à la conception, au développement et à la maintenance des outils du système d'information de Free Pro.",
+  "responsibilities": [
+    "Maintenir et optimiser l'intranet de FreePro bâti sur une stack monolithique",
+    "Refactoriser l'intranet en une infrastructure orientée micro service",
+    "Participer à la conception, au développement et aux tests unitaires / fonctionnels"
+  ],
+  "benefits": [
+    "Carte restaurant SWILE (10,5€ par jour pris en charge à 60%)",
+    "Prise en charge de la mutuelle santé à 100%",
+    "Offre collaborateur Freebox",
+    "Primes Vacances",
+    "Intéressement/Participation",
+    "Télétravail (après phase d'intégration)",
+    "Forfait mobilité durable",
+    "Prime d'ancienneté au bout de 3 ans"
+  ],
+  "model": "mistral:latest",
+  "url": "https://www.hellowork.com/fr-fr/emplois/64533836.html",
+  "processedAt": "2025-04-22T08:10:09.486Z"
+}
