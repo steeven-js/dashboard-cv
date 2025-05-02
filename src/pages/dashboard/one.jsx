@@ -1,7 +1,6 @@
 import { CONFIG } from 'src/global-config';
 
-// import { BlankView } from 'src/sections/blank/view';
-import CVWithPDF from 'src/sections/cv/view';
+import { BlankView } from 'src/sections/blank/view';
 
 // ----------------------------------------------------------------------
 
@@ -12,8 +11,7 @@ export default function Page() {
     <>
       <title>{metadata.title}</title>
 
-      {/* <BlankView title="Page one" /> */}
-      <CVWithPDF />
+      <BlankView title="Page one" />
     </>
   );
 }
