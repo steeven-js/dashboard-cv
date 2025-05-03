@@ -46,5 +46,6 @@ export const paths = {
     personalInfo: `${ROOTS.DASHBOARD}/personal-info`,
     technicalSkills: `${ROOTS.DASHBOARD}/technical-skills`,
     professionalExperience: `${ROOTS.DASHBOARD}/professional-experience`,
+    personalProjects: `${ROOTS.DASHBOARD}/personal-projects`,
   },
 };

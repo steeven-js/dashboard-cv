@@ -61,6 +61,11 @@ export const navData = [
         path: paths.dashboard.professionalExperience, 
         icon: ICONS.job 
       },
+      { 
+        title: 'Projets Personnels', 
+        path: paths.dashboard.personalProjects, 
+        icon: ICONS.folder 
+      },
     ],
   },
 ];

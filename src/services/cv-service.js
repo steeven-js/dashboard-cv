@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 import { supabase } from 'src/lib/supabase';
 
 /**
@@ -8,6 +10,7 @@ import { supabase } from 'src/lib/supabase';
 const CV_TABLE = 'personal_info';
 const TECH_SKILLS_TABLE = 'technical_skills';
 const EXPERIENCES_TABLE = 'experiences';
+const PERSONAL_PROJECTS_TABLE = 'personal_projects';
 // Bucket de stockage pour les avatars
 const STORAGE_BUCKET = 'dashboard-cv';
 
@@ -611,6 +614,246 @@ export const updateExperiencesOrder = async (experienceOrders) => {
     return { success: true };
   } catch (error) {
     console.error('Erreur lors de la mise à jour de l\'ordre des expériences:', error);
+    throw error;
+  }
+};
+
+// Projets personnels
+export const getPersonalProjects = async () => {
+  try {
+    const userId = (await supabase.auth.getUser()).data.user?.id;
+    
+    if (!userId) {
+      throw new Error('Utilisateur non authentifié');
+    }
+    
+    const { data, error } = await supabase
+      .from(PERSONAL_PROJECTS_TABLE)
+      .select('*')
+      .eq('user_id', userId)
+      .order('order', { ascending: true });
+    
+    if (error) {
+      throw error;
+    }
+    
+    // Convertir les données en camelCase pour le client
+    return data ? data.map(project => {
+      const camelCaseProject = toCamelCase(project);
+      
+      // Conversion des dates si nécessaire
+      if (camelCaseProject.startDate) {
+        camelCaseProject.startDate = new Date(camelCaseProject.startDate);
+      }
+      
+      if (camelCaseProject.endDate) {
+        camelCaseProject.endDate = new Date(camelCaseProject.endDate);
+      }
+      
+      return camelCaseProject;
+    }) : [];
+  } catch (error) {
+    console.error('Erreur lors de la récupération des projets:', error);
+    throw error;
+  }
+};
+
+export const savePersonalProject = async (projectData) => {
+  try {
+    const userId = (await supabase.auth.getUser()).data.user?.id;
+    
+    if (!userId) {
+      throw new Error('Utilisateur non authentifié');
+    }
+    
+    // Extraire les propriétés pertinentes et ignorer screenshots
+    const { id, name, role, description, technologies, url, tags, startDate, endDate, isOngoing, visibility, order } = projectData;
+    const projectDataToSave = { name, role, description, technologies, url, tags, startDate, endDate, isOngoing, visibility, order };
+    
+    // Convertir les données en snake_case pour Supabase
+    let projectSnakeCase = toSnakeCase(projectDataToSave);
+    
+    // Ajouter l'ID utilisateur et les dates
+    projectSnakeCase = {
+      ...projectSnakeCase,
+      user_id: userId,
+      updated_at: new Date().toISOString(),
+    };
+    
+    let result;
+    
+    if (id) {
+      // Mise à jour d'un projet existant
+      result = await supabase
+        .from(PERSONAL_PROJECTS_TABLE)
+        .update(projectSnakeCase)
+        .eq('id', id)
+        .eq('user_id', userId);
+    } else {
+      // Insertion d'un nouveau projet
+      projectSnakeCase.created_at = new Date().toISOString();
+      
+      // Déterminer l'ordre maximum actuel
+      try {
+        const { data: maxOrderData } = await supabase
+          .from(PERSONAL_PROJECTS_TABLE)
+          .select('order')
+          .eq('user_id', userId)
+          .order('order', { ascending: false })
+          .limit(1);
+        
+        const maxOrder = maxOrderData && maxOrderData.length > 0 ? maxOrderData[0].order || 0 : 0;
+        projectSnakeCase.order = maxOrder + 1;
+      } catch (orderError) {
+        console.warn('La colonne order pourrait ne pas exister:', orderError);
+        // Utiliser le timestamp actuel comme ordre par défaut si la colonne order n'existe pas
+        projectSnakeCase.order = Date.now();
+      }
+      
+      result = await supabase
+        .from(PERSONAL_PROJECTS_TABLE)
+        .insert(projectSnakeCase);
+    }
+    
+    if (result.error) {
+      throw result.error;
+    }
+    
+    // Pour les nouveaux projets, récupérer l'ID généré
+    let savedProject = { id: id || null, ...projectDataToSave };
+    
+    if (!id && result.data) {
+      // Récupérer l'ID du projet nouvellement créé
+      const { data: newProject } = await supabase
+        .from(PERSONAL_PROJECTS_TABLE)
+        .select('id')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      
+      if (newProject && newProject.length > 0) {
+        savedProject.id = newProject[0].id;
+      }
+    }
+    
+    return savedProject;
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde du projet:', error);
+    throw error;
+  }
+};
+
+export const deletePersonalProject = async (projectId) => {
+  try {
+    const userId = (await supabase.auth.getUser()).data.user?.id;
+    
+    if (!userId) {
+      throw new Error('Utilisateur non authentifié');
+    }
+    
+    const { error } = await supabase
+      .from(PERSONAL_PROJECTS_TABLE)
+      .delete()
+      .eq('id', projectId)
+      .eq('user_id', userId);
+    
+    if (error) {
+      throw error;
+    }
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Erreur lors de la suppression du projet:', error);
+    throw error;
+  }
+};
+
+export const updatePersonalProjectsOrder = async (projects) => {
+  try {
+    const userId = (await supabase.auth.getUser()).data.user?.id;
+    
+    if (!userId) {
+      throw new Error('Utilisateur non authentifié');
+    }
+    
+    // Créer un tableau de promesses pour mettre à jour chaque projet
+    const updatePromises = projects.map((project, index) => supabase
+        .from(PERSONAL_PROJECTS_TABLE)
+        .update({ 
+          order: index,
+          updated_at: new Date().toISOString() 
+        })
+        .eq('id', project.id)
+        .eq('user_id', userId));
+    
+    // Exécuter toutes les mises à jour en parallèle
+    const results = await Promise.all(updatePromises);
+    
+    // Vérifier s'il y a des erreurs
+    const errors = results.filter(result => result.error).map(result => result.error);
+    
+    if (errors.length > 0) {
+      throw new Error(`Erreurs lors de la mise à jour de l'ordre: ${JSON.stringify(errors)}`);
+    }
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour de l\'ordre des projets:', error);
+    throw error;
+  }
+};
+
+export const uploadProjectScreenshot = async (file) => {
+  try {
+    const userId = (await supabase.auth.getUser()).data.user?.id;
+    
+    if (!userId) {
+      throw new Error('Utilisateur non authentifié');
+    }
+    
+    const fileId = uuidv4();
+    const fileExtension = file.name.split('.').pop().toLowerCase();
+    const fileName = `project-screenshots/${userId}/${fileId}.${fileExtension}`;
+    
+    const { error: uploadError } = await supabase.storage
+      .from(STORAGE_BUCKET)
+      .upload(fileName, file, {
+        upsert: true,
+        contentType: file.type,
+      });
+    
+    if (uploadError) {
+      throw uploadError;
+    }
+    
+    // Obtenir l'URL publique de la capture d'écran
+    const { data: urlData } = supabase.storage
+      .from(STORAGE_BUCKET)
+      .getPublicUrl(fileName);
+    
+    return {
+      id: fileId,
+      url: urlData.publicUrl,
+      name: file.name,
+      path: fileName,
+    };
+  } catch (error) {
+    console.error('Erreur lors de l\'upload de la capture d\'écran:', error);
+    throw error;
+  }
+};
+
+export const deleteProjectScreenshot = async (screenshotPath) => {
+  try {
+    const { error: deleteError } = await supabase.storage
+      .from(STORAGE_BUCKET)
+      .remove([screenshotPath]);
+    
+    if (deleteError) {
+      throw deleteError;
+    }
+  } catch (error) {
+    console.error('Erreur lors de la suppression de la capture d\'écran:', error);
     throw error;
   }
 }; 
