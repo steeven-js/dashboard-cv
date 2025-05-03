@@ -1,0 +1,1 @@
+export { CVView } from './view';

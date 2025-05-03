@@ -19,6 +19,12 @@ const PageFour = lazy(() => import('src/pages/dashboard/four'));
 const PageFive = lazy(() => import('src/pages/dashboard/five'));
 const PageSix = lazy(() => import('src/pages/dashboard/six'));
 
+// CV Pages
+const CVListPage = lazy(() => import('src/pages/dashboard/cv-list.jsx'));
+const CVDetailsPage = lazy(() => import('src/pages/dashboard/cv-details.jsx'));
+const CVEditPage = lazy(() => import('src/pages/dashboard/cv-edit.jsx'));
+const CVNewPage = lazy(() => import('src/pages/dashboard/cv-new.jsx'));
+
 // ----------------------------------------------------------------------
 
 function SuspenseOutlet() {
@@ -50,6 +56,17 @@ export const dashboardRoutes = [
           { element: <PageFour />, index: true },
           { path: 'five', element: <PageFive /> },
           { path: 'six', element: <PageSix /> },
+        ],
+      },
+      // Routes CV
+      {
+        path: 'cv',
+        children: [
+          { element: <CVListPage />, index: true },
+          { path: 'list', element: <CVListPage /> },
+          { path: 'new', element: <CVNewPage /> },
+          { path: 'details/:id', element: <CVDetailsPage /> },
+          { path: 'edit/:id', element: <CVEditPage /> },
         ],
       },
     ],

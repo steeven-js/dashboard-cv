@@ -1,6 +1,11 @@
+import 'dayjs/locale/fr';
+
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
+
+// Définir le français comme locale par défaut
+dayjs.locale('fr');
 
 // ----------------------------------------------------------------------
 
@@ -32,15 +37,15 @@ dayjs.extend(relativeTime);
 // ----------------------------------------------------------------------
 
 export const formatPatterns = {
-  dateTime: 'DD MMM YYYY h:mm a', // 17 Apr 2022 12:00 am
-  date: 'DD MMM YYYY', // 17 Apr 2022
-  time: 'h:mm a', // 12:00 am
+  dateTime: 'DD MMM YYYY HH:mm', // 17 Avr 2022 12:00
+  date: 'DD MMM YYYY', // 17 Avr 2022
+  time: 'HH:mm', // 12:00
   split: {
-    dateTime: 'DD/MM/YYYY h:mm a', // 17/04/2022 12:00 am
+    dateTime: 'DD/MM/YYYY HH:mm', // 17/04/2022 12:00
     date: 'DD/MM/YYYY', // 17/04/2022
   },
   paramCase: {
-    dateTime: 'DD-MM-YYYY h:mm a', // 17-04-2022 12:00 am
+    dateTime: 'DD-MM-YYYY HH:mm', // 17-04-2022 12:00
     date: 'DD-MM-YYYY', // 17-04-2022
   },
 };
@@ -56,14 +61,14 @@ export function today(template) {
 // ----------------------------------------------------------------------
 
 /**
- * @output 17 Apr 2022 12:00 am
+ * @output 17 Avr 2022 12:00
  */
 
 // ----------------------------------------------------------------------
 
 export function fDateTime(date, template) {
   if (!isValidDate(date)) {
-    return 'Invalid date';
+    return 'Date invalide';
   }
 
   return dayjs(date).format(template ?? formatPatterns.dateTime);
@@ -72,14 +77,14 @@ export function fDateTime(date, template) {
 // ----------------------------------------------------------------------
 
 /**
- * @output 17 Apr 2022
+ * @output 17 Avr 2022
  */
 
 // ----------------------------------------------------------------------
 
 export function fDate(date, template) {
   if (!isValidDate(date)) {
-    return 'Invalid date';
+    return 'Date invalide';
   }
 
   return dayjs(date).format(template ?? formatPatterns.date);
@@ -88,14 +93,14 @@ export function fDate(date, template) {
 // ----------------------------------------------------------------------
 
 /**
- * @output 12:00 am
+ * @output 12:00
  */
 
 // ----------------------------------------------------------------------
 
 export function fTime(date, template) {
   if (!isValidDate(date)) {
-    return 'Invalid date';
+    return 'Date invalide';
   }
 
   return dayjs(date).format(template ?? formatPatterns.time);
@@ -111,7 +116,7 @@ export function fTime(date, template) {
 
 export function fTimestamp(date) {
   if (!isValidDate(date)) {
-    return 'Invalid date';
+    return 'Date invalide';
   }
 
   return dayjs(date).valueOf();
@@ -120,14 +125,14 @@ export function fTimestamp(date) {
 // ----------------------------------------------------------------------
 
 /**
- * @output a few seconds, 2 years
+ * @output quelques secondes, 2 ans
  */
 
 // ----------------------------------------------------------------------
 
 export function fToNow(date) {
   if (!isValidDate(date)) {
-    return 'Invalid date';
+    return 'Date invalide';
   }
 
   return dayjs(date).toNow(true);
@@ -151,9 +156,9 @@ export function fIsBetween(inputDate, startDate, endDate) {
   const formattedEndDate = fTimestamp(endDate);
 
   if (
-    formattedInputDate === 'Invalid date' ||
-    formattedStartDate === 'Invalid date' ||
-    formattedEndDate === 'Invalid date'
+    formattedInputDate === 'Date invalide' ||
+    formattedStartDate === 'Date invalide' ||
+    formattedEndDate === 'Date invalide'
   ) {
     return false;
   }
@@ -195,17 +200,17 @@ export function fIsSame(startDate, endDate, unitToCompare) {
 
 /**
  * @output
- * Same day: 26 Apr 2024
- * Same month: 25 - 26 Apr 2024
- * Same month: 25 - 26 Apr 2024
- * Same year: 25 Apr - 26 May 2024
+ * Même jour: 26 Avr 2024
+ * Même mois: 25 - 26 Avr 2024
+ * Même mois: 25 - 26 Avr 2024
+ * Même année: 25 Avr - 26 Mai 2024
  */
 
 // ----------------------------------------------------------------------
 
 export function fDateRangeShortLabel(startDate, endDate, initial) {
   if (!isValidDate(startDate) || !isValidDate(endDate) || fIsAfter(startDate, endDate)) {
-    return 'Invalid date';
+    return 'Date invalide';
   }
 
   let label = `${fDate(startDate)} - ${fDate(endDate)}`;

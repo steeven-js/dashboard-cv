@@ -73,6 +73,14 @@ export const navData = [
           { title: 'Six', path: paths.dashboard.group.six },
         ],
       },
+      {
+        title: 'CV',
+        path: paths.dashboard.cv.root,
+        icon: ICONS.file,
+        children: [
+          { title: 'Liste des CVs', path: paths.dashboard.cv.list },
+        ],
+      },
     ],
   },
 ];
