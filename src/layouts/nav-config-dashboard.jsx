@@ -56,6 +56,11 @@ export const navData = [
         path: paths.dashboard.technicalSkills, 
         icon: ICONS.parameter 
       },
+      { 
+        title: 'Expériences Professionnelles', 
+        path: paths.dashboard.professionalExperience, 
+        icon: ICONS.job 
+      },
     ],
   },
 ];

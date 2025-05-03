@@ -7,6 +7,7 @@ import { supabase } from 'src/lib/supabase';
 // Tables à utiliser dans Supabase
 const CV_TABLE = 'personal_info';
 const TECH_SKILLS_TABLE = 'technical_skills';
+const EXPERIENCES_TABLE = 'experiences';
 // Bucket de stockage pour les avatars
 const STORAGE_BUCKET = 'dashboard-cv';
 
@@ -389,6 +390,227 @@ export const updateTechnicalSkillsOrder = async (skills) => {
     return { success: true };
   } catch (error) {
     console.error('Erreur lors de la mise à jour de l\'ordre des compétences:', error);
+    throw error;
+  }
+};
+
+/**
+ * Récupère les expériences professionnelles de l'utilisateur
+ * @returns {Promise<Array>} - La liste des expériences
+ */
+export const getExperiences = async () => {
+  try {
+    const userId = (await supabase.auth.getUser()).data.user?.id;
+    
+    if (!userId) {
+      throw new Error('Utilisateur non authentifié');
+    }
+    
+    let data, error;
+    
+    try {
+      // Essayer d'abord avec le tri par date de début
+      ({ data, error } = await supabase
+        .from(EXPERIENCES_TABLE)
+        .select('*')
+        .eq('user_id', userId)
+        .order('start_date', { ascending: false }));
+    } catch (sortError) {
+      console.warn('Erreur lors du tri par start_date:', sortError);
+      
+      // Fallback: récupérer sans tri
+      ({ data, error } = await supabase
+        .from(EXPERIENCES_TABLE)
+        .select('*')
+        .eq('user_id', userId));
+    }
+    
+    if (error) {
+      throw error;
+    }
+    
+    // Convertir les données en camelCase pour le client
+    return data ? data.map(item => toCamelCase(item)) : [];
+  } catch (error) {
+    console.error('Erreur lors de la récupération des expériences:', error);
+    throw error;
+  }
+};
+
+/**
+ * Sauvegarde une expérience professionnelle dans Supabase
+ * @param {Object} experience - L'expérience à sauvegarder
+ * @returns {Promise<Object>} - Le résultat de l'opération
+ */
+export const saveExperience = async (experience) => {
+  try {
+    const userId = (await supabase.auth.getUser()).data.user?.id;
+    
+    if (!userId) {
+      throw new Error('Utilisateur non authentifié');
+    }
+    
+    // Convertir les données en snake_case pour Supabase
+    let experienceSnakeCase = toSnakeCase(experience);
+    
+    // Vérifier et corriger les champs de date
+    if (experienceSnakeCase.start_date === '') {
+      experienceSnakeCase.start_date = null; // Utiliser NULL au lieu d'une chaîne vide
+    }
+    
+    if (experienceSnakeCase.end_date === '') {
+      experienceSnakeCase.end_date = null; // Utiliser NULL au lieu d'une chaîne vide
+    }
+    
+    // Ajouter l'ID utilisateur et les dates
+    experienceSnakeCase = {
+      ...experienceSnakeCase,
+      user_id: userId,
+      updated_at: new Date().toISOString(),
+    };
+    
+    let result;
+    
+    if (experience.id) {
+      // Mise à jour d'une expérience existante
+      result = await supabase
+        .from(EXPERIENCES_TABLE)
+        .update(experienceSnakeCase)
+        .eq('id', experience.id)
+        .eq('user_id', userId);
+    } else {
+      // Insertion d'une nouvelle expérience
+      experienceSnakeCase.created_at = new Date().toISOString();
+      
+      // Déterminer l'ordre maximum actuel
+      try {
+        const { data: maxOrderData } = await supabase
+          .from(EXPERIENCES_TABLE)
+          .select('order')
+          .eq('user_id', userId)
+          .order('order', { ascending: false })
+          .limit(1);
+        
+        const maxOrder = maxOrderData && maxOrderData.length > 0 ? maxOrderData[0].order || 0 : 0;
+        experienceSnakeCase.order = maxOrder + 1;
+      } catch (orderError) {
+        console.warn('La colonne order pourrait ne pas exister:', orderError);
+        // Ne pas inclure le champ order si la colonne n'existe pas encore
+        delete experienceSnakeCase.order;
+      }
+      
+      result = await supabase
+        .from(EXPERIENCES_TABLE)
+        .insert(experienceSnakeCase);
+    }
+    
+    if (result.error) {
+      throw result.error;
+    }
+    
+    return { success: true, data: result.data };
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde de l\'expérience:', error);
+    throw error;
+  }
+};
+
+/**
+ * Supprime une expérience professionnelle
+ * @param {string} experienceId - L'identifiant de l'expérience à supprimer
+ * @returns {Promise<Object>} - Le résultat de l'opération
+ */
+export const deleteExperience = async (experienceId) => {
+  try {
+    const userId = (await supabase.auth.getUser()).data.user?.id;
+    
+    if (!userId) {
+      throw new Error('Utilisateur non authentifié');
+    }
+    
+    const { error } = await supabase
+      .from(EXPERIENCES_TABLE)
+      .delete()
+      .eq('id', experienceId)
+      .eq('user_id', userId);
+    
+    if (error) {
+      throw error;
+    }
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Erreur lors de la suppression de l\'expérience:', error);
+    throw error;
+  }
+};
+
+/**
+ * Met à jour l'ordre des expériences professionnelles
+ * @param {Array} experienceOrders - Tableau d'objets contenant id et order
+ * @returns {Promise<Object>} - Le résultat de l'opération
+ */
+export const updateExperiencesOrder = async (experienceOrders) => {
+  try {
+    const userId = (await supabase.auth.getUser()).data.user?.id;
+    
+    if (!userId) {
+      throw new Error('Utilisateur non authentifié');
+    }
+    
+    // Vérifier que la colonne 'order' existe
+    try {
+      // Tentative de récupération avec tri par order pour vérifier si la colonne existe
+      await supabase
+        .from(EXPERIENCES_TABLE)
+        .select('id')
+        .eq('user_id', userId)
+        .order('order', { ascending: true })
+        .limit(1);
+    } catch (columnError) {
+      console.warn('La colonne order pourrait ne pas exister:', columnError);
+      // Attendre un peu de temps avant de continuer
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Récupérer les expériences existantes pour les mettre à jour individuellement
+      const { data: existingExperiences } = await supabase
+        .from(EXPERIENCES_TABLE)
+        .select('id')
+        .eq('user_id', userId);
+      
+      if (existingExperiences && existingExperiences.length > 0) {
+        // Mettre à jour chaque expérience individuellement sans utiliser la colonne order
+        const updatePromises = experienceOrders.map(({ id, order }) => supabase
+            .from(EXPERIENCES_TABLE)
+            .update({ updated_at: new Date().toISOString() })
+            .eq('id', id)
+            .eq('user_id', userId));
+        
+        await Promise.all(updatePromises);
+        return { success: true, message: 'Mise à jour sans colonne order' };
+      }
+      
+      return { success: false, message: 'Impossible de mettre à jour l\'ordre (colonne manquante)' };
+    }
+    
+    // La colonne order existe, procéder normalement
+    // Utiliser une transaction Supabase pour mettre à jour toutes les positions
+    const updates = experienceOrders.map(({ id, order }) => ({
+      id,
+      order,
+      user_id: userId,
+      updated_at: new Date().toISOString(),
+    }));
+    
+    const { error } = await supabase.from(EXPERIENCES_TABLE).upsert(updates);
+    
+    if (error) {
+      throw error;
+    }
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour de l\'ordre des expériences:', error);
     throw error;
   }
 }; 
