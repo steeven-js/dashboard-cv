@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { forwardRef } from 'react';
 import { mergeClasses } from 'minimal-shared/utils';
 
 import Link from '@mui/material/Link';
@@ -10,39 +10,53 @@ import { logoClasses } from './classes';
 
 // ----------------------------------------------------------------------
 
-export function Logo({ sx, disabled, className, href = '/', isSingle = true, ...other }) {
+export const Logo = forwardRef((props, ref) => {
+  const {
+    className,
+    href = '/',
+    isSingle = true,
+    isNavLogo = true,
+    disabled,
+    sx,
+    ...other
+  } = props;
+
   const theme = useTheme();
 
-  const gradientId = useId();
+  /*
+   * Using local (public folder)
+   */
+  const navLogo = (
+    <img
+      alt="Navigation logo"
+      src={`/logo/${theme.palette.mode === 'dark' ? 'Logo1-darkmode.svg' : 'logo1.svg'}`}
+      width="100%"
+      height="100%"
+    />
+  );
 
-  const TEXT_PRIMARY = theme.vars.palette.text.primary;
-  const PRIMARY_LIGHT = theme.vars.palette.primary.light;
-  const PRIMARY_MAIN = theme.vars.palette.primary.main;
-  const PRIMARY_DARKER = theme.vars.palette.primary.dark;
+  const loadingLogo = (
+    <img
+      alt="Loading logo"
+      src={`/logo/${theme.palette.mode === 'dark' ? 'Logo2-darkmode.svg' : 'Logo2.svg'}`}
+      width="100%"
+      height="100%"
+    />
+  );
+
+  const fullLogo = (
+    <img
+      alt="Full logo"
+      src={`/logo/${theme.palette.mode === 'dark' ? 'Logo1-darkmode.svg' : 'logo1.svg'}`}
+      width="100%"
+      height="100%"
+    />
+  );
+  /*
+   *
+   */
 
   /*
-    * OR using local (public folder)
-    *
-    const singleLogo = (
-      <img
-        alt="Single logo"
-        src={`${CONFIG.assetsDir}/logo/logo-single.svg`}
-        width="100%"
-        height="100%"
-      />
-    );
-
-    const fullLogo = (
-      <img
-        alt="Full logo"
-        src={`${CONFIG.assetsDir}/logo/logo-full.svg`}
-        width="100%"
-        height="100%"
-      />
-    );
-    *
-    */
-
   const singleLogo = (
     <svg
       width="100%"
@@ -172,29 +186,33 @@ export function Logo({ sx, disabled, className, href = '/', isSingle = true, ...
       />
     </svg>
   );
+  */
 
   return (
     <LogoRoot
+      ref={ref}
       component={RouterLink}
       href={href}
       aria-label="Logo"
       underline="none"
       className={mergeClasses([logoClasses.root, className])}
       sx={[
-        {
-          width: 40,
-          height: 40,
-          ...(!isSingle && { width: 102, height: 36 }),
+        () => ({
+          display: 'absolute',
+          top: 0,
+          left: 10,
+          width: 120,
+          ...(!isSingle && { width: 140, height: 50 }),
           ...(disabled && { pointerEvents: 'none' }),
-        },
+        }),
         ...(Array.isArray(sx) ? sx : [sx]),
       ]}
       {...other}
     >
-      {isSingle ? singleLogo : fullLogo}
+      {isSingle ? (isNavLogo ? navLogo : loadingLogo) : fullLogo}
     </LogoRoot>
   );
-}
+});
 
 // ----------------------------------------------------------------------
 
@@ -203,4 +221,8 @@ const LogoRoot = styled(Link)(() => ({
   color: 'transparent',
   display: 'inline-flex',
   verticalAlign: 'middle',
+  '& img': {
+    maxWidth: '100%',
+    objectFit: 'contain',
+  },
 }));

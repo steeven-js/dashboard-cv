@@ -1,88 +1,111 @@
 {
-    "personalInfo": {
-        "name": "JEAN DUPONT",
-        "position": "Développeur Full Stack",
-        "email": "jean.dupont@email.com",
-        "phone": "+33 6 12 34 56 78",
-        "location": "Paris, France",
-        "github": "github.com/jdupont",
-        "linkedin": "linkedin.com/in/jeandupont"
+    "informationsPersonnelles": {
+      "nom": "JACQUES",
+      "prenom": "Steeven",
+      "titre": "Développeur Full-Stack React & Laravel",
+      "description": "Développeur full-stack expert en React (Web & Mobile) et Laravel (API & Back-end), je conçois des applications performantes et sécurisées. J'intègre les meilleures pratiques modernes pour garantir une expérience utilisateur optimale et un code robuste.",
+      "contact": {
+        "siteWeb": "https://www.jsprod.fr/",
+        "email": "jacques.steeven@gmail.com",
+        "linkedin": "https://www.linkedin.com/in/steevenjacques/",
+        "telephone": "+565 696 30 76 31",
+        "adresse": "Cité Trénelle Bâtiment B Appartement A3"
+      }
     },
-    "about": "Développeur Full Stack avec 5 ans d'expérience dans la création d'applications web performantes et évolutives. Expertise en JavaScript, React, Node.js et bases de données SQL/NoSQL. Passionné par l'architecture logicielle, les bonnes pratiques de développement et l'amélioration continue.",
-    "skills": [
-        {
-            "category": "Langages de programmation",
-            "items": [
-                "JavaScript",
-                "TypeScript",
-                "Python",
-                "PHP",
-                "SQL"
-            ]
-        },
-        {
-            "category": "Front-end",
-            "items": [
-                "React",
-                "Vue.js",
-                "HTML5/CSS3",
-                "Tailwind"
-            ]
-        },
-        {
-            "category": "Back-end",
-            "items": [
-                "Node.js",
-                "Express",
-                "Django",
-                "Laravel"
-            ]
-        },
-        {
-            "category": "Bases de données",
-            "items": [
-                "MongoDB",
-                "PostgreSQL",
-                "MySQL",
-                "Redis"
-            ]
-        }
+    "competencesTechniques": {
+      "frontEnd": {
+        "titre": "Front-End (UI/UX & Web Apps)",
+        "technologies": ["React", "Next.js", "TailwindCSS", "MUI"],
+        "competences": ["Optimisation SEO et performance"]
+      },
+      "mobile": {
+        "titre": "Mobile (Apps iOS & Android)",
+        "technologies": ["React Native", "Expo"],
+        "competences": [
+          "Gestion des composants natifs",
+          "Développement et intégration avancée"
+        ]
+      },
+      "backEnd": {
+        "titre": "Back-End & API (Scalabilité & Sécurité)",
+        "technologies": ["Laravel", "Node.js", "Express"],
+        "competences": [
+          "REST API", 
+          "Authentication", 
+          "Gestion des permissions",
+          "API secondaires",
+          "Microservices"
+        ]
+      },
+      "basesDeDonnees": {
+        "titre": "Bases de Données",
+        "technologies": ["MySQL", "Firebase Firestore", "PostgreSQL", "MongoDB"],
+        "competences": [
+          "Laravel Eloquent", 
+          "SQL optimisé",
+          "NoSQL", 
+          "Données en temps réel"
+        ]
+      },
+      "devOps": {
+        "titre": "DevOps & Sécurité",
+        "technologies": ["Docker", "Vercel", "Netlify", "Hostinger"],
+        "competences": [
+          "Déploiement & CI/CD",
+          "Gestion des accès",
+          "Chiffrement des données",
+          "Prévention des menaces"
+        ]
+      }
+    },
+    "experiencesEtProjets": [
+      {
+        "poste": "CTO",
+        "entreprise": "MadinIA",
+        "site": "madinia.fr",
+        "technologies": ["React", "Laravel", "Firebase"],
+        "description": "Projet clé : CRM sur mesure avec Laravel (API) & React (front-end)",
+        "realisations": [
+          "Développement et optimisation d'une plateforme complète (site web, dashboards, CRM)",
+          "Implémentation d'APIs Laravel sécurisées et scalables",
+          "Intégration Firebase pour l'authentification et la gestion des notifications"
+        ]
+      },
+      {
+        "poste": "Développeur IA & Cybersécurité",
+        "technologies": ["LLM Open Source"],
+        "description": "Déploiement d'IA locale avec gestion des accès et des permissions",
+        "realisations": [
+          "Implémentation de solutions auto-hébergées sécurisées",
+          "Protection des données et mise en place de stratégies de chiffrement"
+        ]
+      },
+      {
+        "poste": "Développement Mobile",
+        "projet": "Plantmed iOS",
+        "technologies": ["React Native"],
+        "description": "Application mobile sur les plantes médicinales",
+        "realisations": [
+          "Création d'une application iOS performante avec gestion avancée de l'état et des données en temps réel",
+          "Intégration de composants natifs pour une expérience fluide"
+        ]
+      }
     ],
-    "experience": [
-        {
-            "title": "Développeur Full Stack Senior",
-            "company": "TechVision Solutions, Paris",
-            "dates": "Janvier 2022 - Présent",
-            "responsibilities": [
-                "Développement d'une plateforme SaaS B2B utilisée par plus de 50 000 utilisateurs",
-                "Mise en œuvre d'une architecture microservices avec Node.js et Docker, réduisant les temps de déploiement de 70%",
-                "Refonte de l'interface utilisateur avec React et Tailwind CSS, améliorant les métriques d'engagement de 35%",
-                "Mise en place d'une suite de tests automatisés couvrant 85% du code"
-            ]
-        },
-        {
-            "title": "Développeur Front-End",
-            "company": "Innovate Digital, Lyon",
-            "dates": "Février 2020 - Décembre 2021",
-            "responsibilities": [
-                "Développement d'applications web responsive pour divers clients dans les secteurs de la finance et du e-commerce",
-                "Création de composants réutilisables avec Vue.js et implémentation d'une bibliothèque de composants interne",
-                "Optimisation des performances front-end, réduisant le temps de chargement des pages de 40%"
-            ]
-        }
+    "formations": [
+      {
+        "diplome": "Concepteur Développeur d'Application",
+        "etablissement": "IMFPA",
+        "lieu": "Fort de France"
+      },
+      {
+        "diplome": "Développeur Web et Mobile",
+        "etablissement": "IMFPA",
+        "lieu": "Fort de France"
+      }
     ],
-    "education": [
-        {
-            "degree": "Master en Ingénierie Informatique",
-            "institution": "École Supérieure d'Informatique, Paris",
-            "dates": "2016 - 2018",
-            "description": "Spécialisation en Développement Web et Mobile. Mention Très Bien."
-        },
-        {
-            "degree": "Licence en Informatique",
-            "institution": "Université de Paris",
-            "dates": "2013 - 2016",
-            "description": "Option Programmation et Algorithmique. Mention Bien."
-        }
+    "centresDInteret": [
+      "Veille technologique et innovation dans le développement web et mobile",
+      "Développement de projets personnels",
+      "Voyage sport nautique"
     ]
-}
+  }

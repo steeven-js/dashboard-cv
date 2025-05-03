@@ -13,10 +13,10 @@ export const LabelRoot = styled('span', {
        * @variant filled
        */
       ...(variant === 'filled' && {
-        color: theme.vars.palette.common.white,
-        backgroundColor: theme.vars.palette.text.primary,
-        ...theme.applyStyles('dark', {
-          color: theme.vars.palette.grey[800],
+        color: theme.palette.common.white,
+        backgroundColor: theme.palette.text.primary,
+        ...theme.applyStyles?.('dark', {
+          color: theme.palette.grey[800],
         }),
       }),
       /**
@@ -24,60 +24,66 @@ export const LabelRoot = styled('span', {
        */
       ...(variant === 'outlined' && {
         backgroundColor: 'transparent',
-        color: theme.vars.palette.text.primary,
-        border: `2px solid ${theme.vars.palette.text.primary}`,
+        color: theme.palette.text.primary,
+        border: `2px solid ${theme.palette.text.primary}`,
       }),
       /**
        * @variant soft
        */
       ...(variant === 'soft' && {
-        color: theme.vars.palette.text.secondary,
-        backgroundColor: varAlpha(theme.vars.palette.grey['500Channel'], 0.16),
+        color: theme.palette.text.secondary,
+        backgroundColor: varAlpha(theme.palette.grey['500Channel'], 0.16),
       }),
       /**
        * @variant inverted
        */
       ...(variant === 'inverted' && {
-        color: theme.vars.palette.grey[800],
-        backgroundColor: theme.vars.palette.grey[300],
+        color: theme.palette.grey[800],
+        backgroundColor: theme.palette.grey[300],
       }),
     }),
   };
 
   const colorStyles = {
     ...(color &&
-      color !== 'default' && {
+      color !== 'default' &&
+      theme.palette[color] && {
         /**
          * @variant filled
          */
         ...(variant === 'filled' && {
-          color: theme.vars.palette[color].contrastText,
-          backgroundColor: theme.vars.palette[color].main,
+          color: theme.palette[color].contrastText || theme.palette.common.white,
+          backgroundColor: theme.palette[color].main || theme.palette.grey[500],
         }),
         /**
          * @variant outlined
          */
         ...(variant === 'outlined' && {
           backgroundColor: 'transparent',
-          color: theme.vars.palette[color].main,
-          border: `2px solid ${theme.vars.palette[color].main}`,
+          color: theme.palette[color].main || theme.palette.grey[500],
+          border: `2px solid ${theme.palette[color].main || theme.palette.grey[500]}`,
         }),
         /**
          * @variant soft
          */
         ...(variant === 'soft' && {
-          color: theme.vars.palette[color].dark,
-          backgroundColor: varAlpha(theme.vars.palette[color].mainChannel, 0.16),
-          ...theme.applyStyles('dark', {
-            color: theme.vars.palette[color].light,
+          color: theme.palette[color].dark || theme.palette.grey[700],
+          backgroundColor: varAlpha(
+            theme.palette[color].mainChannel || theme.palette.grey['500Channel'],
+            0.16
+          ),
+          ...(theme.applyStyles && {
+            ...theme.applyStyles('dark', {
+              color: theme.palette[color]?.light || theme.palette.grey[300],
+            }),
           }),
         }),
         /**
          * @variant inverted
          */
         ...(variant === 'inverted' && {
-          color: theme.vars.palette[color].darker,
-          backgroundColor: theme.vars.palette[color].lighter,
+          color: theme.palette[color].darker || theme.palette.grey[800],
+          backgroundColor: theme.palette[color].lighter || theme.palette.grey[300],
         }),
       }),
   };
