@@ -14,6 +14,7 @@ import { usePathname } from '../hooks';
 
 const IndexPage = lazy(() => import('src/pages/dashboard/personal-info'));
 const PersonalInfoPage = lazy(() => import('src/pages/dashboard/personal-info'));
+const TechnicalSkillsPage = lazy(() => import('src/pages/dashboard/technical-skills'));
 
 // ----------------------------------------------------------------------
 
@@ -39,6 +40,7 @@ export const dashboardRoutes = [
     children: [
       { element: <IndexPage />, index: true },
       { path: 'personal-info', element: <PersonalInfoPage /> },
+      { path: 'technical-skills', element: <TechnicalSkillsPage /> },
     ],
   },
 ];

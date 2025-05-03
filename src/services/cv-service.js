@@ -4,8 +4,9 @@ import { supabase } from 'src/lib/supabase';
  * Service pour gérer les données du CV dans Supabase
  */
 
-// Table à utiliser dans Supabase
+// Tables à utiliser dans Supabase
 const CV_TABLE = 'personal_info';
+const TECH_SKILLS_TABLE = 'technical_skills';
 // Bucket de stockage pour les avatars
 const STORAGE_BUCKET = 'dashboard-cv';
 
@@ -30,7 +31,8 @@ const toSnakeCase = (obj) => {
  * @returns {Object} - L'objet avec les clés en camelCase
  */
 const toCamelCase = (obj) => {
-  if (!obj) return obj;
+  if (!obj) return null;
+  
   const result = {};
   Object.keys(obj).forEach(key => {
     // Conversion de snake_case vers camelCase
@@ -144,7 +146,7 @@ export const savePersonalInfo = async (personalInfo) => {
       }
       
     // Cas 3: L'avatar a été supprimé
-    } else if (personalInfo.avatarUrl === null && existingData?.photo_url) {
+    } else if (!personalInfo.avatarUrl && existingData?.photo_url) {
       console.log('Suppression de l\'avatar existant');
       
       // 1. Supprimer le fichier du stockage si possible
@@ -222,6 +224,171 @@ export const getPersonalInfo = async () => {
     return personalInfo;
   } catch (error) {
     console.error('Erreur lors de la récupération des informations personnelles:', error);
+    throw error;
+  }
+};
+
+/**
+ * Récupère les compétences techniques depuis Supabase
+ * @returns {Promise<Array>} - Les compétences techniques
+ */
+export const getTechnicalSkills = async () => {
+  try {
+    const userId = (await supabase.auth.getUser()).data.user?.id;
+    
+    if (!userId) {
+      throw new Error('Utilisateur non authentifié');
+    }
+    
+    const { data, error } = await supabase
+      .from(TECH_SKILLS_TABLE)
+      .select('*')
+      .eq('user_id', userId)
+      .order('name', { ascending: true });
+    
+    if (error) {
+      throw error;
+    }
+    
+    // Convertir les données de snake_case vers camelCase
+    const skills = data ? data.map(skill => {
+      const camelCaseSkill = toCamelCase(skill);
+      return {
+        ...camelCaseSkill,
+        // S'assurer que les tags sont un tableau même si null dans la base
+        tags: camelCaseSkill.tags || [],
+      };
+    }) : [];
+    
+    console.log('Compétences récupérées de Supabase:', skills);
+    
+    return skills;
+  } catch (error) {
+    console.error('Erreur lors de la récupération des compétences techniques:', error);
+    throw error;
+  }
+};
+
+/**
+ * Sauvegarde une compétence technique dans Supabase
+ * @param {Object} skill - La compétence à sauvegarder
+ * @returns {Promise<Object>} - Le résultat de l'opération
+ */
+export const saveTechnicalSkill = async (skill) => {
+  try {
+    const userId = (await supabase.auth.getUser()).data.user?.id;
+    
+    if (!userId) {
+      throw new Error('Utilisateur non authentifié');
+    }
+    
+    // Convertir les données en snake_case pour Supabase
+    let skillSnakeCase = toSnakeCase(skill);
+    
+    // Ajouter l'ID utilisateur et les dates
+    skillSnakeCase = {
+      ...skillSnakeCase,
+      user_id: userId,
+      updated_at: new Date().toISOString(),
+    };
+    
+    let result;
+    
+    if (skill.id) {
+      // Mise à jour d'une compétence existante
+      result = await supabase
+        .from(TECH_SKILLS_TABLE)
+        .update(skillSnakeCase)
+        .eq('id', skill.id)
+        .eq('user_id', userId);
+    } else {
+      // Insertion d'une nouvelle compétence
+      skillSnakeCase.created_at = new Date().toISOString();
+      result = await supabase
+        .from(TECH_SKILLS_TABLE)
+        .insert(skillSnakeCase);
+    }
+    
+    if (result.error) {
+      throw result.error;
+    }
+    
+    return { success: true, data: result.data };
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde de la compétence technique:', error);
+    throw error;
+  }
+};
+
+/**
+ * Supprime une compétence technique dans Supabase
+ * @param {string} skillId - L'ID de la compétence à supprimer
+ * @returns {Promise<Object>} - Le résultat de l'opération
+ */
+export const deleteTechnicalSkill = async (skillId) => {
+  try {
+    const userId = (await supabase.auth.getUser()).data.user?.id;
+    
+    if (!userId) {
+      throw new Error('Utilisateur non authentifié');
+    }
+    
+    const { error } = await supabase
+      .from(TECH_SKILLS_TABLE)
+      .delete()
+      .eq('id', skillId)
+      .eq('user_id', userId);
+    
+    if (error) {
+      throw error;
+    }
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Erreur lors de la suppression de la compétence technique:', error);
+    throw error;
+  }
+};
+
+/**
+ * Met à jour l'ordre des compétences techniques dans Supabase
+ * @param {Array} skills - Les compétences avec leur ordre actualisé
+ * @returns {Promise<Object>} - Le résultat de l'opération
+ */
+export const updateTechnicalSkillsOrder = async (skills) => {
+  try {
+    const userId = (await supabase.auth.getUser()).data.user?.id;
+    
+    if (!userId) {
+      throw new Error('Utilisateur non authentifié');
+    }
+    
+    // Créer un tableau de promesses pour mettre à jour chaque compétence
+    const updatePromises = skills.map((skill, index) => {
+      const { id } = skill;
+      return supabase
+        .from(TECH_SKILLS_TABLE)
+        .update({ 
+          order_index: index,
+          updated_at: new Date().toISOString() 
+        })
+        .eq('id', id)
+        .eq('user_id', userId);
+    });
+    
+    // Exécuter toutes les mises à jour en parallèle
+    const results = await Promise.all(updatePromises);
+    
+    // Vérifier s'il y a des erreurs
+    const errors = results.filter(result => result.error).map(result => result.error);
+    
+    if (errors.length > 0) {
+      throw new Error(`Erreurs lors de la mise à jour de l'ordre: ${JSON.stringify(errors)}`);
+    }
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour de l\'ordre des compétences:', error);
     throw error;
   }
 }; 

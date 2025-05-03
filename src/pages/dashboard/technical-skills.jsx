@@ -1,23 +1,23 @@
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 
-import PersonalInfoForm from 'src/sections/cv/personal-info-form';
+import TechnicalSkillsForm from 'src/sections/cv/technical-skills-form';
 
 // ----------------------------------------------------------------------
 
-export default function PersonalInfoPage() {
+export default function TechnicalSkillsPage() {
   return (
     <>
       <title>
-        Informations Personnelles
+        Compétences Techniques
       </title>
 
       <Container maxWidth="lg">
         <Typography variant="h4" sx={{ mb: 5 }}>
-          Informations Personnelles
-        </Typography>
+          Compétences Techniques
+      </Typography>
 
-        <PersonalInfoForm />
+        <TechnicalSkillsForm />
       </Container>
     </>
   );

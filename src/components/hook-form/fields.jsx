@@ -6,6 +6,7 @@ import { RHFTextField } from './rhf-text-field';
 import { RHFRadioGroup } from './rhf-radio-group';
 import { RHFPhoneInput } from './rhf-phone-input';
 import { RHFNumberInput } from './rhf-number-input';
+import { RHFCustomField } from './rhf-custom-field';
 import { RHFAutocomplete } from './rhf-autocomplete';
 import { RHFCountrySelect } from './rhf-country-select';
 import { RHFSwitch, RHFMultiSwitch } from './rhf-switch';
@@ -27,6 +28,7 @@ export const Field = {
   Text: RHFTextField,
   Phone: RHFPhoneInput,
   Checkbox: RHFCheckbox,
+  Custom: RHFCustomField,
   UploadBox: RHFUploadBox,
   RadioGroup: RHFRadioGroup,
   DatePicker: RHFDatePicker,
