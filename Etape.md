@@ -4,27 +4,27 @@
 
 ```
 Semaine 1:
-[XXXXX] Configuration du projet et environnement
-[XXXXX] Mise en place de Supabase
-[XXX--] Création des tables et relations
+[x ] [XXXXX] Configuration du projet et environnement
+[x] [XXXXX] Mise en place de Supabase
+[x ] [XXX--] Création des tables et relations
 
 Semaine 2:
-[XXXXX] Authentification et profil utilisateur
-[XXXXX] Formulaires de saisie des informations
-[XXXXX] Interface de gestion des compétences
-[XXX--] Interface de gestion des expériences
+[x] [XXXXX] Authentification et profil utilisateur
+[x ] [XXXXX] Formulaires de saisie des informations
+[ ] [XXXXX] Interface de gestion des compétences
+[ ] [XXX--] Interface de gestion des expériences
 
 Semaine 3:
-[XXXXX] Importation et validation JSON
-[XXXXX] Algorithme de correspondance
-[XXXXX] Génération de CV basique
-[XX---] Interface de prévisualisation
+[ ] [XXXXX] Importation et validation JSON
+[ ] [XXXXX] Algorithme de correspondance
+[ ] [XXXXX] Génération de CV basique
+[ ] [XX---] Interface de prévisualisation
 
 Semaine 4:
-[XXXXX] Export PDF
-[XXXXX] Tests utilisateurs
-[XXXXX] Corrections et optimisations
-[XXXXX] Déploiement version MVP
+[ ] [XXXXX] Export PDF
+[ ] [XXXXX] Tests utilisateurs
+[ ] [XXXXX] Corrections et optimisations
+[ ] [XXXXX] Déploiement version MVP
 ```
 # Semaine 2:
 
@@ -32,7 +32,7 @@ Je vais adapter les étapes de développement en prenant en compte l'architectur
 
 ## Formulaires de saisie des informations - Découpe adaptée
 
-### Étape 1 : Structure de base des formulaires et configuration
+[x ] ### Étape 1 : Structure de base des formulaires et configuration
 
 ```
 Mettre en place la structure de base des formulaires en utilisant les composants existants :
@@ -44,7 +44,7 @@ Mettre en place la structure de base des formulaires en utilisant les composants
 6. Implémenter la persistance des données avec Supabase
 ```
 
-### Étape 2 : Formulaire d'informations personnelles
+[x ] ### Étape 2 : Formulaire d'informations personnelles
 
 ```
 Développer le formulaire d'informations personnelles en utilisant les composants existants :
@@ -58,7 +58,7 @@ Développer le formulaire d'informations personnelles en utilisant les composant
 8. Implémenter la sauvegarde automatique vers Supabase avec feedback visuel (snackbar)
 ```
 
-### Étape 3 : Formulaire de gestion des compétences techniques
+[x ] ### Étape 3 : Formulaire de gestion des compétences techniques
 
 ```
 Créer le formulaire de gestion des compétences techniques :
@@ -74,7 +74,7 @@ Créer le formulaire de gestion des compétences techniques :
 10. Intégrer la sauvegarde dans Supabase après chaque modification
 ```
 
-### Étape 4 : Formulaire d'expériences professionnelles
+[x ] ### Étape 4 : Formulaire d'expériences professionnelles
 
 ```
 Développer le formulaire de gestion des expériences professionnelles :
@@ -91,7 +91,7 @@ Développer le formulaire de gestion des expériences professionnelles :
 11. Mettre en place confirmation-dialog.jsx pour la suppression d'une expérience
 ```
 
-### Étape 5 : Formulaire de projets personnels
+[x ] ### Étape 5 : Formulaire de projets personnels
 
 ```
 Créer le formulaire de gestion des projets personnels :
@@ -107,7 +107,7 @@ Créer le formulaire de gestion des projets personnels :
 10. Configurer la visibilité et le tri comme pour les expériences
 ```
 
-### Étape 6 : Formulaire de formations et diplômes
+[x ] ### Étape 6 : Formulaire de formations et diplômes
 
 ```
 Développer le formulaire de formations et diplômes :
@@ -123,7 +123,7 @@ Développer le formulaire de formations et diplômes :
 10. Configurer le tri chronologique automatique
 ```
 
-### Étape 7 : Interface principale et navigation
+[x ] ### Étape 7 : Interface principale et navigation
 
 ```
 Intégrer tous les formulaires dans une interface utilisateur cohérente :
@@ -139,7 +139,7 @@ Intégrer tous les formulaires dans une interface utilisateur cohérente :
 10. Implémenter l'exportation des données au format JSON
 ```
 
-### Étape 8 : Optimisation et finalisation
+[x ] ### Étape 8 : Optimisation et finalisation
 
 ```
 Finaliser et optimiser les formulaires :
@@ -163,7 +163,7 @@ Je vais adapter la section "Interface de gestion des compétences" en fonction d
 
 ## Interface de gestion des compétences - Découpe détaillée
 
-### Étape 1 : Structure de base et modèle de données
+[x ] ### Étape 1 : Structure de base et modèle de données
 
 ```
 Créer la structure de base pour la gestion des compétences techniques :
@@ -175,7 +175,7 @@ Créer la structure de base pour la gestion des compétences techniques :
 6. Développer la structure de la page de gestion des compétences dans src/sections/cv/skills/index.jsx
 ```
 
-### Étape 2 : Interface de liste des compétences
+[x ] ### Étape 2 : Interface de liste des compétences
 
 ```
 Développer l'interface de liste des compétences :
@@ -191,7 +191,7 @@ Développer l'interface de liste des compétences :
 10. Créer un état vide avec src/components/empty-content/empty-content.jsx
 ```
 
-### Étape 3 : Composant d'ajout et d'édition de compétence
+[x ] ### Étape 3 : Composant d'ajout et d'édition de compétence
 
 ```
 Créer le formulaire d'ajout et d'édition des compétences :
@@ -207,7 +207,7 @@ Créer le formulaire d'ajout et d'édition des compétences :
 10. Implémenter la validation en temps réel avec les schemas Zod
 ```
 
-### Étape 4 : Visualisation du niveau de compétence
+[ ] ### Étape 4 : Visualisation du niveau de compétence
 
 ```
 Créer une visualisation intuitive du niveau de compétence :
@@ -223,7 +223,7 @@ Créer une visualisation intuitive du niveau de compétence :
 10. Ajouter une option de comparaison entre le niveau actuel et le niveau requis pour une offre
 ```
 
-### Étape 5 : Système de catégorisation des compétences
+[ ] ### Étape 5 : Système de catégorisation des compétences
 
 ```
 Mettre en place un système de catégorisation flexible :
@@ -239,7 +239,7 @@ Mettre en place un système de catégorisation flexible :
 10. Ajouter un système de catégorisation hiérarchique (catégories et sous-catégories)
 ```
 
-### Étape 6 : Système de tags pour faciliter la correspondance
+[ ] ### Étape 6 : Système de tags pour faciliter la correspondance
 
 ```
 Développer un système de tags pour les compétences :
@@ -255,7 +255,7 @@ Développer un système de tags pour les compétences :
 10. Mettre en place un système d'analyse de correspondance entre tags de compétences et tags d'offres d'emploi
 ```
 
-### Étape 7 : Interface de drag & drop et réorganisation
+[ ] ### Étape 7 : Interface de drag & drop et réorganisation
 
 ```
 Créer une interface de réorganisation par drag & drop :
@@ -271,7 +271,7 @@ Créer une interface de réorganisation par drag & drop :
 10. Prévoir un bouton de réinitialisation de l'ordre par défaut
 ```
 
-### Étape 8 : Intégration avec l'algorithme de matching
+[ ] ### Étape 8 : Intégration avec l'algorithme de matching
 
 ```
 Développer l'intégration avec l'algorithme de correspondance pour les offres d'emploi :
@@ -287,7 +287,7 @@ Développer l'intégration avec l'algorithme de correspondance pour les offres d
 10. Ajouter une fonctionnalité pour générer des recommandations d'amélioration
 ```
 
-### Étape 9 : Visualisation et rapport de compétences
+[ ] ### Étape 9 : Visualisation et rapport de compétences
 
 ```
 Créer des visualisations et rapports sur les compétences :
@@ -303,7 +303,7 @@ Créer des visualisations et rapports sur les compétences :
 10. Implémenter des suggestions d'amélioration basées sur l'analyse du profil
 ```
 
-### Étape 10 : Optimisation et finalisation
+[ ] ### Étape 10 : Optimisation et finalisation
 
 ```
 Finaliser et optimiser l'interface de gestion des compétences :
@@ -321,13 +321,176 @@ Finaliser et optimiser l'interface de gestion des compétences :
 
 Ces étapes sont spécifiquement conçues pour s'intégrer à votre architecture de projet existante, en tirant parti des composants MUI 7.0.1 et des outils déjà présents dans votre structure de dossiers. Chaque étape peut servir de prompt détaillé pour l'IDE Cursor, permettant un développement méthodique et progressif de l'interface de gestion des compétences.
 
+
+Je vais adapter l'étape "Interface de gestion des expériences" en tenant compte de l'architecture de votre projet React avec MUI 7.0.1 et des composants disponibles.
+
+## Interface de gestion des expériences - Découpe détaillée
+
+[ ] ### Étape 1 : Structure des données et modèles
+
+```
+Mettre en place la structure de données pour les expériences professionnelles :
+1. Définir le modèle de données des expériences dans src/data/experience-model.js
+2. Créer le schéma de validation Zod dans src/sections/cv/schemas/experience-schema.js
+3. Développer les types et interfaces pour les expériences (titre, entreprise, date, description, etc.)
+4. Configurer les services Supabase dans src/services/experience-service.js
+5. Implémenter les helpers de formatage de dates dans src/utils/format-time.js
+6. Définir les constantes pour les types d'expériences et états dans src/data/experience-constants.js
+```
+
+[ ] ### Étape 2 : Interface de liste des expériences
+
+```
+Développer l'interface de liste des expériences professionnelles :
+1. Créer src/sections/cv/experiences/experience-list.jsx pour l'affichage des expériences
+2. Utiliser Grid de MUI pour organiser les expériences en colonnes responsives
+3. Développer src/sections/cv/experiences/experience-card.jsx pour l'affichage compact
+4. Implémenter le tri chronologique avec options (plus récent, plus ancien)
+5. Ajouter des filtres avec src/components/filters-result/filters-result.jsx
+6. Créer un état vide avec src/components/empty-content/empty-content.jsx
+7. Implémenter des animations avec framer-motion lors de l'ajout/suppression
+8. Ajouter une barre de recherche pour filtrer les expériences
+9. Développer des badges pour identifier les types d'expériences avec src/components/label/label.jsx
+10. Implémenter une timeline visuelle des expériences avec Material UI Timeline
+```
+
+[ ] ### Étape 3 : Formulaire d'ajout et édition d'expérience
+
+```
+Créer le formulaire d'ajout et d'édition des expériences :
+1. Développer src/sections/cv/experiences/experience-form.jsx pour le formulaire principal
+2. Utiliser src/components/hook-form/form-provider.jsx comme base du formulaire
+3. Créer les champs de titre et entreprise avec src/components/hook-form/rhf-text-field.jsx
+4. Implémenter le sélecteur de localisation avec src/components/hook-form/rhf-country-select.jsx
+5. Ajouter un sélecteur de période avec src/components/hook-form/rhf-date-picker.jsx
+6. Intégrer un éditeur riche pour la description avec src/components/hook-form/rhf-editor.jsx
+7. Développer une section pour les technologies utilisées avec rhf-autocomplete.jsx
+8. Créer un composant pour les réalisations avec ajout/suppression dynamique
+9. Implémenter un système de tags avec rhf-autocomplete.jsx en mode multiple
+10. Ajouter l'option de visibilité avec src/components/hook-form/rhf-switch.jsx
+```
+
+[ ] ### Étape 4 : Gestion des réalisations clés
+
+```
+Développer un système de gestion des réalisations mesurables :
+1. Créer src/sections/cv/experiences/achievement-input.jsx pour la saisie des réalisations
+2. Implémenter un système d'ajout/suppression dynamique des points clés
+3. Ajouter une validation pour assurer des réalisations mesurables et impactantes
+4. Développer des suggestions intelligentes basées sur le domaine et le poste
+5. Créer un système de formatage automatique pour uniformiser le style
+6. Implémenter un compteur de caractères pour limiter la longueur
+7. Ajouter des exemples contextuels pour guider l'utilisateur
+8. Créer des indicateurs visuels pour la qualité des réalisations saisies
+9. Développer un système de glisser-déposer pour réorganiser les réalisations
+10. Implémenter la sauvegarde automatique pendant la saisie
+```
+
+[ ] ### Étape 5 : Association des technologies utilisées
+
+```
+Implémenter l'association des technologies et compétences utilisées :
+1. Développer src/sections/cv/experiences/technology-selector.jsx pour la sélection
+2. Créer une interface d'auto-complétion basée sur les compétences déjà saisies
+3. Implémenter un système de suggestions dynamiques
+4. Ajouter la possibilité de créer une nouvelle compétence à la volée
+5. Développer une visualisation des compétences sélectionnées avec des chips
+6. Créer un système de catégorisation des technologies (front-end, back-end, etc.)
+7. Implémenter des indicateurs du niveau d'utilisation de chaque technologie
+8. Ajouter un système de sélection rapide des technologies fréquemment utilisées
+9. Développer une synchronisation bidirectionnelle avec le module de compétences
+10. Créer un système de filtrage et recherche pour les grandes listes de technologies
+```
+
+[ ] ### Étape 6 : Visualisation chronologique
+
+```
+Développer une visualisation chronologique des expériences :
+1. Créer src/sections/cv/experiences/experience-timeline.jsx pour l'affichage
+2. Utiliser @mui/lab Timeline pour créer une représentation visuelle
+3. Implémenter des cartes détaillées pour chaque période
+4. Ajouter des indicateurs visuels pour les chevauchements temporels
+5. Développer un affichage adaptatif pour les périodes longues et courtes
+6. Créer un système de zoom pour naviguer dans les longues carrières
+7. Implémenter des filtres temporels (par année, par période)
+8. Ajouter des marqueurs pour les moments clés ou changements de carrière
+9. Développer une représentation des périodes sans emploi
+10. Créer une vue comparative avec d'autres sections (formation, projets)
+```
+
+[ ] ### Étape 7 : Modal de détails d'expérience
+
+```
+Concevoir une modal de détails pour chaque expérience :
+1. Développer src/sections/cv/experiences/experience-details-modal.jsx
+2. Créer une vue complète avec toutes les informations de l'expérience
+3. Implémenter des onglets pour organiser les différentes sections
+4. Ajouter une timeline interne pour visualiser la progression
+5. Développer des boutons d'action rapide (éditer, supprimer, dupliquer)
+6. Créer une section de visualisation des technologies utilisées
+7. Implémenter une section pour les réalisations clés avec mise en forme
+8. Ajouter une fonctionnalité d'export individuel de l'expérience
+9. Développer une section de médias associés (certificats, lettres, etc.)
+10. Intégrer des statistiques sur l'impact de cette expérience pour les CV
+```
+
+[ ] ### Étape 8 : Système d'import/export d'expériences
+
+```
+Mettre en place un système d'import/export des expériences :
+1. Développer src/sections/cv/experiences/experience-import-export.jsx
+2. Créer des fonctions d'export au format JSON, PDF et texte
+3. Implémenter un système d'import depuis LinkedIn ou autres plateformes
+4. Ajouter la validation des données importées
+5. Développer un assistant de migration pour les formats externes
+6. Créer un système de résolution des conflits lors de l'import
+7. Implémenter des modèles d'export personnalisables
+8. Ajouter un système de sauvegarde et restauration
+9. Développer un historique des imports/exports
+10. Créer un système de partage des expériences via lien
+```
+
+[ ] ### Étape 9 : Analytics et recommandations
+
+```
+Créer un système d'analytics et recommandations pour les expériences :
+1. Développer src/sections/cv/experiences/experience-analytics.jsx
+2. Créer des visualisations de la progression de carrière avec src/components/chart/chart.jsx
+3. Implémenter un analyseur de qualité des descriptions et réalisations
+4. Développer des suggestions d'amélioration basées sur les meilleures pratiques
+5. Créer un système de détection des lacunes temporelles
+6. Implémenter des comparaisons avec des profils similaires (anonymisés)
+7. Ajouter des indicateurs de complétude et d'impact pour chaque expérience
+8. Développer un système de recommandation pour mettre en avant certaines expériences
+9. Créer des rapports de progression professionnelle
+10. Implémenter une analyse automatique des mots-clés pertinents
+```
+
+[ ] ### Étape 10 : Intégration avec le système de génération de CV
+
+```
+Intégrer les expériences avec le système de génération de CV :
+1. Développer src/sections/cv/experiences/experience-cv-preview.jsx
+2. Créer une visualisation de comment chaque expérience apparaîtra dans le CV
+3. Implémenter un système de prioritisation des expériences pour différents types de CV
+4. Ajouter une fonctionnalité de personnalisation de l'affichage par CV
+5. Développer une logique de sélection automatique basée sur l'offre d'emploi
+6. Créer une interface de réorganisation spécifique au CV
+7. Implémenter des variantes de présentation pour chaque expérience
+8. Ajouter un système de mots-clés à mettre en évidence par offre
+9. Développer des statistiques d'utilisation des expériences dans les CV générés
+10. Créer un tableau de bord d'optimisation des expériences pour le matching
+```
+
+Ces étapes sont spécifiquement adaptées à votre structure de projet React avec MUI 7.0.1, en tirant parti des composants existants dans votre dossier src/components/ et en s'intégrant avec votre configuration Supabase. Chaque étape peut être utilisée comme un prompt distinct pour l'IDE Cursor, permettant un développement progressif et cohérent de l'interface de gestion des expériences professionnelles pour votre application de CV dynamique.
+
 # Semaine 3:
 
 Je vais adapter l'étape "Importation et validation JSON" en tenant compte de l'architecture spécifique de votre projet et des composants disponibles.
 
 ## Importation et validation JSON - Découpe détaillée
 
-### Étape 1 : Conception du modèle et des types de données
+[x ] ### Étape 1 : Conception du modèle et des types de données
 
 ```
 Créer la structure de données pour les offres d'emploi au format JSON :
@@ -339,7 +502,7 @@ Créer la structure de données pour les offres d'emploi au format JSON :
 6. Implémenter les conversions entre formats dans src/utils/job-offer-converter.js
 ```
 
-### Étape 2 : Interface d'importation JSON
+[ ] ### Étape 2 : Interface d'importation JSON
 
 ```
 Développer l'interface d'importation JSON :
@@ -355,7 +518,7 @@ Développer l'interface d'importation JSON :
 10. Implémenter des animations de transition avec framer-motion
 ```
 
-### Étape 3 : Validation du format JSON
+[ ] ### Étape 3 : Validation du format JSON
 
 ```
 Mettre en place la validation en temps réel du format JSON :
@@ -371,7 +534,7 @@ Mettre en place la validation en temps réel du format JSON :
 10. Implémenter une fonctionnalité de nettoyage et formatage automatique du JSON
 ```
 
-### Étape 4 : Prévisualisation de l'analyse
+[ ] ### Étape 4 : Prévisualisation de l'analyse
 
 ```
 Développer une interface de prévisualisation avant confirmation :
@@ -387,7 +550,7 @@ Développer une interface de prévisualisation avant confirmation :
 10. Implémenter une comparaison avec le profil utilisateur existant
 ```
 
-### Étape 5 : Normalisation et traitement des données
+[ ] ### Étape 5 : Normalisation et traitement des données
 
 ```
 Implémenter la normalisation et le traitement des données :
@@ -403,7 +566,7 @@ Implémenter la normalisation et le traitement des données :
 10. Créer un processeur de texte pour formater la description de manière cohérente
 ```
 
-### Étape 6 : Persistance en base de données
+[ ] ### Étape 6 : Persistance en base de données
 
 ```
 Mettre en place la sauvegarde des offres dans Supabase :
@@ -419,7 +582,7 @@ Mettre en place la sauvegarde des offres dans Supabase :
 10. Développer une logique de suppression sécurisée avec vérifications
 ```
 
-### Étape 7 : Interface de gestion des offres importées
+[ ] ### Étape 7 : Interface de gestion des offres importées
 
 ```
 Créer une interface de liste et gestion des offres importées :
@@ -435,7 +598,7 @@ Créer une interface de liste et gestion des offres importées :
 10. Implémenter des statistiques sur les offres (nombre, correspondance moyenne, etc.)
 ```
 
-### Étape 8 : Édition des offres importées
+[ ] ### Étape 8 : Édition des offres importées
 
 ```
 Développer une interface d'édition des offres importées :
@@ -451,7 +614,7 @@ Développer une interface d'édition des offres importées :
 10. Créer un système de suggestions intelligentes pour l'amélioration de l'offre
 ```
 
-### Étape 9 : Analyse de correspondance avec le profil
+[ ] ### Étape 9 : Analyse de correspondance avec le profil
 
 ```
 Intégrer l'analyse de correspondance avec le profil utilisateur :
@@ -467,7 +630,7 @@ Intégrer l'analyse de correspondance avec le profil utilisateur :
 10. Implémenter un tableau de bord récapitulatif pour l'aide à la décision
 ```
 
-### Étape 10 : Intégration avec Claude AI
+[ ] ### Étape 10 : Intégration avec Claude AI
 
 ```
 Développer l'intégration avec Claude AI pour l'analyse des offres :
