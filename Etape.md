@@ -1,5 +1,61 @@
 ## 5. Planning de Développement Détaillé
 
+### Sommaire
+
+- [5.1 Diagramme de Gantt Simplifié](#51-diagramme-de-gantt-simplifié)
+- [Semaine 2](#semaine-2)
+  - [Formulaires de saisie des informations](#formulaires-de-saisie-des-informations---découpe-adaptée)
+    - [Étape 1: Structure de base des formulaires et configuration](#étape-1--structure-de-base-des-formulaires-et-configuration)
+    - [Étape 2: Formulaire d'informations personnelles](#étape-2--formulaire-dinformations-personnelles)
+    - [Étape 3: Formulaire de gestion des compétences techniques](#étape-3--formulaire-de-gestion-des-compétences-techniques)
+    - [Étape 4: Formulaire d'expériences professionnelles](#étape-4--formulaire-dexpériences-professionnelles)
+    - [Étape 5: Formulaire de projets personnels](#étape-5--formulaire-de-projets-personnels)
+    - [Étape 6: Formulaire de formations et diplômes](#étape-6--formulaire-de-formations-et-diplômes)
+    - [Étape 7: Interface principale et navigation](#étape-7--interface-principale-et-navigation)
+    - [Étape 8: Optimisation et finalisation](#étape-8--optimisation-et-finalisation)
+  - [Interface de gestion des compétences](#interface-de-gestion-des-compétences---découpe-détaillée)
+    - [Étape 1: Structure de base et modèle de données](#étape-1--structure-de-base-et-modèle-de-données)
+    - [Étape 2: Interface de liste des compétences](#étape-2--interface-de-liste-des-compétences)
+    - [Étape 3: Composant d'ajout et d'édition de compétence](#étape-3--composant-dajout-et-dédition-de-compétence)
+    - [Étape 4: Visualisation du niveau de compétence](#étape-4--visualisation-du-niveau-de-compétence)
+    - [Étape 5: Système de catégorisation des compétences](#étape-5--système-de-catégorisation-des-compétences)
+    - [Étape 6: Système de tags pour faciliter la correspondance](#étape-6--système-de-tags-pour-faciliter-la-correspondance)
+    - [Étape 7: Interface de drag & drop et réorganisation](#étape-7--interface-de-drag--drop-et-réorganisation)
+    - [Étape 8: Intégration avec l'algorithme de matching](#étape-8--intégration-avec-lalgorithme-de-matching)
+    - [Étape 9: Visualisation et rapport de compétences](#étape-9--visualisation-et-rapport-de-compétences)
+    - [Étape 10: Optimisation et finalisation](#étape-10--optimisation-et-finalisation)
+  - [Interface de gestion des expériences](#interface-de-gestion-des-expériences---découpe-détaillée)
+    - [Étape 1: Structure des données et modèles](#étape-1--structure-des-données-et-modèles)
+    - [Étape 2: Interface de liste des expériences](#étape-2--interface-de-liste-des-expériences)
+    - [Étape 3: Formulaire d'ajout et édition d'expérience](#étape-3--formulaire-dajout-et-édition-dexpérience)
+    - [Étape 4: Gestion des réalisations clés](#étape-4--gestion-des-réalisations-clés)
+    - [Étape 5: Association des technologies utilisées](#étape-5--association-des-technologies-utilisées)
+    - [Étape 6: Visualisation chronologique](#étape-6--visualisation-chronologique)
+    - [Étape 7: Modal de détails d'expérience](#étape-7--modal-de-détails-dexpérience)
+    - [Étape 8: Système d'import/export d'expériences](#étape-8--système-dimportexport-dexpériences)
+    - [Étape 9: Analytics et recommandations](#étape-9--analytics-et-recommandations)
+    - [Étape 10: Intégration avec le système de génération de CV](#étape-10--intégration-avec-le-système-de-génération-de-cv)
+- [Semaine 3](#semaine-3)
+  - [Importation et validation JSON](#importation-et-validation-json---découpe-détaillée)
+    - [Étape 1: Conception du modèle et des types de données](#étape-1--conception-du-modèle-et-des-types-de-données)
+    - [Étape 2: Interface d'importation JSON](#étape-2--interface-dimportation-json)
+    - [Étape 3: Validation du format JSON](#étape-3--validation-du-format-json)
+    - [Étape 4: Prévisualisation de l'analyse](#étape-4--prévisualisation-de-lanalyse)
+    - [Étape 5: Normalisation et traitement des données](#étape-5--normalisation-et-traitement-des-données)
+    - [Étape 6: Persistance en base de données](#étape-6--persistance-en-base-de-données)
+    - [Étape 7: Interface de gestion des offres importées](#étape-7--interface-de-gestion-des-offres-importées)
+    - [Étape 8: Édition des offres importées](#étape-8--édition-des-offres-importées)
+    - [Étape 9: Analyse de correspondance avec le profil](#étape-9--analyse-de-correspondance-avec-le-profil)
+    - [Étape 10: Intégration avec Claude AI](#étape-10--intégration-avec-claude-ai)
+  - [Algorithme de correspondance](#algorithme-de-correspondance)
+  - [Génération de CV basique](#génération-de-cv-basique)
+  - [Interface de prévisualisation](#interface-de-prévisualisation)
+- [Semaine 4](#semaine-4)
+  - [Export PDF](#export-pdf)
+  - [Tests utilisateurs](#tests-utilisateurs)
+  - [Corrections et optimisations](#corrections-et-optimisations)
+  - [Déploiement version MVP](#déploiement-version-mvp)
+
 ### 5.1 Diagramme de Gantt Simplifié
 
 ```
@@ -9,13 +65,13 @@ Semaine 1:
 [x] [XXX--] Création des tables et relations
 
 Semaine 2:
-[x] [XXXXX] [Authentification et profil utilisateur](#semaine-2)
-[x] [XXXXX] [Formulaires de saisie des informations](#formulaires-de-saisie-des-informations---découpe-adaptée)
-[ ] [XXXXX] [Interface de gestion des compétences](#interface-de-gestion-des-compétences---découpe-détaillée)
-[ ] [XXX--] [Interface de gestion des expériences](#interface-de-gestion-des-expériences---découpe-détaillée)
+[x] [XXXXX] Authentification et profil utilisateur
+[x] [XXXXX] Formulaires de saisie des informations
+[ ] [XXXXX] Interface de gestion des compétences
+[ ] [XXX--] Interface de gestion des expériences
 
 Semaine 3:
-[ ] [XXXXX] [Importation et validation JSON](#importation-et-validation-json---découpe-détaillée)
+[ ] [XXXXX] Importation et validation JSON
 [ ] [XXXXX] Algorithme de correspondance
 [ ] [XXXXX] Génération de CV basique
 [ ] [XX---] Interface de prévisualisation
