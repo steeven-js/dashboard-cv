@@ -7,1031 +7,887 @@ import { supabase } from 'src/lib/supabase';
  */
 
 // Tables à utiliser dans Supabase
-const CV_TABLE = 'personal_info';
-const TECH_SKILLS_TABLE = 'technical_skills';
-const EXPERIENCES_TABLE = 'experiences';
-const PERSONAL_PROJECTS_TABLE = 'personal_projects';
-const EDUCATION_TABLE = 'education';
+// Commenter les variables non utilisées
+// const CV_TABLE = 'cv';
+// const TECH_SKILLS_TABLE = 'technical_skills';
+// const EXPERIENCES_TABLE = 'experiences';
+// const PERSONAL_PROJECTS_TABLE = 'personal_projects';
+// const EDUCATION_TABLE = 'education';
 // Bucket de stockage pour les avatars
 const STORAGE_BUCKET = 'dashboard-cv';
+
+// Préfixes pour les clés de cache
+const CACHE_KEYS = {
+  PERSONAL_INFO: 'personalInfo',
+  SKILLS: 'skills',
+  EXPERIENCES: 'experiences',
+  PROJECTS: 'projects',
+  EDUCATION: 'education',
+};
+
+// Cache local pour éviter des appels répétés à l'API
+const memoryCache = {};
+
+/**
+ * Gère la mise en cache des requêtes
+ * @param {string} key - Clé de cache
+ * @param {Function} fetchFunction - Fonction pour récupérer les données
+ * @param {number} expiryTime - Temps d'expiration en ms (par défaut 5 min)
+ * @returns {Promise<any>} Données récupérées ou depuis le cache
+ */
+const cachedQuery = async (key, fetchFunction, expiryTime = 5 * 60 * 1000) => {
+  const now = new Date().getTime();
+  const cacheKey = `cv_${key}`;
+  
+  // Vérifier si les données sont en cache et valides
+  if (memoryCache[cacheKey] && memoryCache[cacheKey].expiry > now) {
+    return memoryCache[cacheKey].data;
+  }
+  
+  // Récupérer des données fraîches
+  const data = await fetchFunction();
+  
+  // Stocker dans le cache
+  memoryCache[cacheKey] = {
+    data,
+    expiry: now + expiryTime,
+  };
+  
+  return data;
+};
+
+/**
+ * Invalide une entrée du cache
+ * @param {string} key - Clé de cache à invalider
+ */
+const invalidateCache = (key) => {
+  const cacheKey = `cv_${key}`;
+  delete memoryCache[cacheKey];
+};
+
+/**
+ * Gère la réponse de Supabase et extrait les données
+ * @param {Function} queryFn - Fonction de requête Supabase
+ * @returns {Promise<any>} Données extraites
+ */
+const handleSupabaseResponse = async (queryFn) => {
+  try {
+    const { data, error } = await queryFn();
+    
+    if (error) {
+      console.error('Erreur Supabase:', error);
+      throw new Error(error.message);
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Erreur lors de la requête:', error);
+    throw error;
+  }
+};
 
 /**
  * Convertit les clés d'un objet du camelCase vers le snake_case
  * @param {Object} obj - L'objet à convertir
  * @returns {Object} - L'objet avec les clés en snake_case
  */
-const toSnakeCase = (obj) => {
-  const result = {};
-  Object.keys(obj).forEach(key => {
-    // Conversion de camelCase vers snake_case
-    const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
-    result[snakeKey] = obj[key];
-  });
-  return result;
-};
+// Commenté car non utilisé
+// const toSnakeCase = (obj) => {
+//   const result = {};
+//   Object.keys(obj).forEach(key => {
+//     // Conversion de camelCase vers snake_case
+//     const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+//     result[snakeKey] = obj[key];
+//   });
+//   return result;
+// };
 
 /**
  * Convertit les clés d'un objet du snake_case vers le camelCase
  * @param {Object} obj - L'objet à convertir
  * @returns {Object} - L'objet avec les clés en camelCase
  */
-const toCamelCase = (obj) => {
-  if (!obj) return null;
+// Commenté car non utilisé
+// const toCamelCase = (obj) => {
+//   if (!obj) return null;
+//   
+//   const result = {};
+//   Object.keys(obj).forEach(key => {
+//     // Conversion de snake_case vers camelCase
+//     const camelKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+//     result[camelKey] = obj[key];
+//   });
+//   return result;
+// };
+
+/**
+ * Récupère les informations personnelles de l'utilisateur
+ * @returns {Promise<Object>} Données personnelles
+ */
+export const getPersonalInfo = async () => cachedQuery(
+    CACHE_KEYS.PERSONAL_INFO,
+    async () => handleSupabaseResponse(
+      () => supabase.from('personal_info').select('*').single()
+    )
+  );
+
+/**
+ * Sauvegarde les informations personnelles de l'utilisateur
+ * @param {Object} data - Données à sauvegarder
+ * @returns {Promise<Object>} Données sauvegardées
+ */
+export const savePersonalInfo = async (data) => {
+  const { user } = await supabase.auth.getUser();
   
-  const result = {};
-  Object.keys(obj).forEach(key => {
-    // Conversion de snake_case vers camelCase
-    const camelKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
-    result[camelKey] = obj[key];
-  });
+  if (!user) throw new Error('Utilisateur non authentifié');
+  
+  const result = await handleSupabaseResponse(
+    () => supabase.from('personal_info').upsert(
+      {
+        user_id: user.id,
+        ...data,
+        updated_at: new Date(),
+      },
+      { onConflict: 'user_id' }
+    ).select().single()
+  );
+  
+  // Invalider le cache après mise à jour
+  invalidateCache(CACHE_KEYS.PERSONAL_INFO);
+  
   return result;
 };
 
 /**
- * Sauvegarde les informations personnelles dans Supabase
- * @param {Object} personalInfo - Les informations personnelles à sauvegarder
- * @returns {Promise<Object>} - Le résultat de l'opération
+ * Récupère les compétences techniques de l'utilisateur
+ * @returns {Promise<Array>} Liste des compétences
  */
-export const savePersonalInfo = async (personalInfo) => {
-  try {
-    const userId = (await supabase.auth.getUser()).data.user?.id;
-    
-    if (!userId) {
-      throw new Error('Utilisateur non authentifié');
-    }
-    
-    // Convertir les données en snake_case pour Supabase
-    const personalInfoSnakeCase = toSnakeCase(personalInfo);
-    
-    // Traiter le champ avatarUrl spécifiquement pour éviter le conflit de nommage avec la colonne photo_url
-    if ('avatar_url' in personalInfoSnakeCase) {
-      // On supprime avatar_url car la colonne n'existe pas dans la base de données
-      delete personalInfoSnakeCase.avatar_url;
-    }
-    
-    // Extraire la photo de l'objet pour la traiter séparément
-    // On ne l'envoie pas directement dans la base de données
-    const { ...dataToSave } = personalInfoSnakeCase;
-    
-    // Vérifier si l'utilisateur a déjà des informations personnelles
-    const { data: existingData } = await supabase
-      .from(CV_TABLE)
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-    
-    let result;
-    
-    if (existingData) {
-      // Mise à jour des données existantes
-      result = await supabase
-        .from(CV_TABLE)
-        .update({
-          ...dataToSave,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('user_id', userId);
-    } else {
-      // Insertion de nouvelles données
-      result = await supabase
-        .from(CV_TABLE)
-        .insert({
-          user_id: userId,
-          ...dataToSave,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        });
-    }
-    
-    if (result.error) {
-      throw result.error;
-    }
-    
-    // Gestion de l'avatar (champ avatarUrl du formulaire)
-    // L'avatar peut être:
-    // 1. Un fichier (objet File) : à téléverser
-    // 2. Une URL (string) : déjà téléversé, ne rien faire
-    // 3. null/undefined : supprimer l'avatar existant si nécessaire
-    
-    // Cas 1: Un nouveau fichier a été sélectionné via le composant UploadAvatar
-    if (personalInfo.avatarUrl instanceof File) {
-      console.log("Téléversement d'un nouvel avatar:", personalInfo.avatarUrl.name);
+export const getTechnicalSkills = async () => cachedQuery(
+    CACHE_KEYS.SKILLS,
+    async () => {
+      // Récupérer les données depuis Supabase
+      const data = await handleSupabaseResponse(
+        () => supabase
+          .from('technical_skills')
+          .select('*')
+      );
       
-      const fileExt = personalInfo.avatarUrl.name.split('.').pop().toLowerCase();
-      const fileName = `avatars/${userId}/avatar.${fileExt}`;
-      
-      const { error: uploadError } = await supabase.storage
-        .from(STORAGE_BUCKET)
-        .upload(fileName, personalInfo.avatarUrl, {
-          upsert: true,
-          contentType: personalInfo.avatarUrl.type,
-        });
-      
-      if (uploadError) {
-        console.error('Erreur lors du téléversement de l\'avatar:', uploadError);
-        throw uploadError;
-      }
-      
-      // Obtenir l'URL publique de l'avatar
-      const { data: urlData } = supabase.storage
-        .from(STORAGE_BUCKET)
-        .getPublicUrl(fileName);
-      
-      console.log('Avatar téléversé avec succès, URL:', urlData.publicUrl);
-      
-      // Mettre à jour l'URL de la photo dans la base de données
-      const { error: updateError } = await supabase
-        .from(CV_TABLE)
-        .update({ photo_url: urlData.publicUrl })
-        .eq('user_id', userId);
-      
-      if (updateError) {
-        console.error('Erreur lors de la mise à jour de l\'URL de l\'avatar:', updateError);
-        throw updateError;
-      }
-      
-    // Cas 3: L'avatar a été supprimé
-    } else if (!personalInfo.avatarUrl && existingData?.photo_url) {
-      console.log('Suppression de l\'avatar existant');
-      
-      // 1. Supprimer le fichier du stockage si possible
+      // Récupérer l'ordre depuis le localStorage
       try {
-        // Extraire le nom du fichier depuis l'URL
-        // Format de l'URL: https://domain/storage/v1/object/dashboard-cv/avatars/user-id/avatar.ext
-        const pathMatch = existingData.photo_url.match(/\/storage\/v1\/object\/[^/]+\/(.+)$/);
-        const filePath = pathMatch ? pathMatch[1] : null;
-        
-        if (filePath) {
-          const { error: deleteError } = await supabase.storage
-            .from(STORAGE_BUCKET)
-            .remove([filePath]);
+        const savedOrder = localStorage.getItem('cv_technical_skills_order');
+        if (savedOrder) {
+          const orderArray = JSON.parse(savedOrder);
           
-          if (deleteError) {
-            console.warn('Erreur lors de la suppression du fichier avatar:', deleteError);
-          }
+          // Créer un map pour l'ordre des compétences
+          const orderMap = new Map();
+          orderArray.forEach((id, index) => {
+            orderMap.set(id, index);
+          });
+          
+          // Trier les données en fonction de l'ordre sauvegardé
+          return data.sort((a, b) => {
+            const orderA = orderMap.has(a.id) ? orderMap.get(a.id) : Number.MAX_SAFE_INTEGER;
+            const orderB = orderMap.has(b.id) ? orderMap.get(b.id) : Number.MAX_SAFE_INTEGER;
+            return orderA - orderB;
+          });
         }
-      } catch (deleteError) {
-        console.warn('Erreur lors de l\'analyse du chemin de l\'avatar:', deleteError);
-        // On continue même si la suppression du fichier échoue
+      } catch (error) {
+        console.error('Erreur lors de la récupération de l\'ordre:', error);
       }
       
-      // 2. Mettre photo_url à null dans la base de données
-      const { error: updateError } = await supabase
-        .from(CV_TABLE)
-        .update({ photo_url: null })
-        .eq('user_id', userId);
-      
-      if (updateError) {
-        console.error('Erreur lors de la mise à jour de l\'URL de l\'avatar:', updateError);
-        throw updateError;
-      }
+      // Retourner les données non triées si pas d'ordre sauvegardé
+      return data;
     }
-    // Cas 2: Si avatarUrl est une string, c'est l'URL existante, on ne fait rien
-    
-    return { success: true };
-  } catch (error) {
-    console.error('Erreur lors de la sauvegarde des informations personnelles:', error);
-    throw error;
-  }
-};
+  );
 
 /**
- * Récupère les informations personnelles depuis Supabase
- * @returns {Promise<Object>} - Les informations personnelles
- */
-export const getPersonalInfo = async () => {
-  try {
-    const userId = (await supabase.auth.getUser()).data.user?.id;
-    
-    if (!userId) {
-      throw new Error('Utilisateur non authentifié');
-    }
-    
-    const { data, error } = await supabase
-      .from(CV_TABLE)
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-    
-    if (error) {
-      throw error;
-    }
-    
-    // Convertir les données de snake_case vers camelCase
-    const personalInfo = toCamelCase(data) || {};
-    
-    // Mapper photo_url vers avatarUrl pour la compatibilité avec le formulaire
-    // S'assurer que avatarUrl est défini même si photoUrl est null
-    personalInfo.avatarUrl = personalInfo.photoUrl || null;
-    
-    console.log('Données récupérées de Supabase:', personalInfo);
-    
-    return personalInfo;
-  } catch (error) {
-    console.error('Erreur lors de la récupération des informations personnelles:', error);
-    throw error;
-  }
-};
-
-/**
- * Récupère les compétences techniques depuis Supabase
- * @returns {Promise<Array>} - Les compétences techniques
- */
-export const getTechnicalSkills = async () => {
-  try {
-    const userId = (await supabase.auth.getUser()).data.user?.id;
-    
-    if (!userId) {
-      throw new Error('Utilisateur non authentifié');
-    }
-    
-    const { data, error } = await supabase
-      .from(TECH_SKILLS_TABLE)
-      .select('*')
-      .eq('user_id', userId)
-      .order('name', { ascending: true });
-    
-    if (error) {
-      throw error;
-    }
-    
-    // Convertir les données de snake_case vers camelCase
-    const skills = data ? data.map(skill => {
-      const camelCaseSkill = toCamelCase(skill);
-      return {
-        ...camelCaseSkill,
-        // S'assurer que les tags sont un tableau même si null dans la base
-        tags: camelCaseSkill.tags || [],
-      };
-    }) : [];
-    
-    console.log('Compétences récupérées de Supabase:', skills);
-    
-    return skills;
-  } catch (error) {
-    console.error('Erreur lors de la récupération des compétences techniques:', error);
-    throw error;
-  }
-};
-
-/**
- * Sauvegarde une compétence technique dans Supabase
- * @param {Object} skill - La compétence à sauvegarder
- * @returns {Promise<Object>} - Le résultat de l'opération
+ * Sauvegarde une compétence technique
+ * @param {Object} skill - Données de la compétence
+ * @returns {Promise<Object>} Compétence sauvegardée
  */
 export const saveTechnicalSkill = async (skill) => {
-  try {
-    const userId = (await supabase.auth.getUser()).data.user?.id;
-    
-    if (!userId) {
-      throw new Error('Utilisateur non authentifié');
-    }
-    
-    // Convertir les données en snake_case pour Supabase
-    let skillSnakeCase = toSnakeCase(skill);
-    
-    // Ajouter l'ID utilisateur et les dates
-    skillSnakeCase = {
-      ...skillSnakeCase,
-      user_id: userId,
-      updated_at: new Date().toISOString(),
-    };
-    
-    let result;
-    
-    if (skill.id) {
-      // Mise à jour d'une compétence existante
-      result = await supabase
-        .from(TECH_SKILLS_TABLE)
-        .update(skillSnakeCase)
-        .eq('id', skill.id)
-        .eq('user_id', userId);
-    } else {
-      // Insertion d'une nouvelle compétence
-      skillSnakeCase.created_at = new Date().toISOString();
-      result = await supabase
-        .from(TECH_SKILLS_TABLE)
-        .insert(skillSnakeCase);
-    }
-    
-    if (result.error) {
-      throw result.error;
-    }
-    
-    return { success: true, data: result.data };
-  } catch (error) {
-    console.error('Erreur lors de la sauvegarde de la compétence technique:', error);
-    throw error;
+  const { user } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error('Utilisateur non authentifié');
+  
+  // Déterminer si c'est une création ou une mise à jour
+  const isUpdate = !!skill.id;
+  
+  // Si création, récupérer l'ordre d'affichage maximal
+  let displayOrder = 0;
+  
+  if (!isUpdate) {
+    const skills = await getTechnicalSkills();
+    displayOrder = skills.length > 0 
+      ? Math.max(...skills.map(s => s.display_order || 0)) + 1 
+      : 0;
   }
+  
+  const result = await handleSupabaseResponse(
+    () => supabase.from('technical_skills').upsert(
+      {
+        user_id: user.id,
+        ...skill,
+        display_order: isUpdate ? skill.display_order : displayOrder,
+        updated_at: new Date(),
+      },
+      { onConflict: 'id' }
+    ).select().single()
+  );
+  
+  // Invalider le cache après mise à jour
+  invalidateCache(CACHE_KEYS.SKILLS);
+  
+  return result;
 };
 
 /**
- * Supprime une compétence technique dans Supabase
- * @param {string} skillId - L'ID de la compétence à supprimer
- * @returns {Promise<Object>} - Le résultat de l'opération
+ * Supprime une compétence technique
+ * @param {string} skillId - ID de la compétence à supprimer
+ * @returns {Promise<void>}
  */
 export const deleteTechnicalSkill = async (skillId) => {
-  try {
-    const userId = (await supabase.auth.getUser()).data.user?.id;
-    
-    if (!userId) {
-      throw new Error('Utilisateur non authentifié');
-    }
-    
-    const { error } = await supabase
-      .from(TECH_SKILLS_TABLE)
-      .delete()
-      .eq('id', skillId)
-      .eq('user_id', userId);
-    
-    if (error) {
-      throw error;
-    }
-    
-    return { success: true };
-  } catch (error) {
-    console.error('Erreur lors de la suppression de la compétence technique:', error);
-    throw error;
-  }
+  await handleSupabaseResponse(
+    () => supabase.from('technical_skills').delete().eq('id', skillId)
+  );
+  
+  // Invalider le cache après suppression
+  invalidateCache(CACHE_KEYS.SKILLS);
 };
 
 /**
- * Met à jour l'ordre des compétences techniques dans Supabase
- * @param {Array} skills - Les compétences avec leur ordre actualisé
- * @returns {Promise<Object>} - Le résultat de l'opération
+ * Met à jour l'ordre d'affichage des compétences
+ * @param {Array} skills - Liste des compétences avec leur nouvel ordre
+ * @returns {Promise<void>}
  */
 export const updateTechnicalSkillsOrder = async (skills) => {
+  if (!skills || skills.length === 0) return;
+  
+  // Stocker l'ordre dans le localStorage seulement
   try {
-    const userId = (await supabase.auth.getUser()).data.user?.id;
-    
-    if (!userId) {
-      throw new Error('Utilisateur non authentifié');
-    }
-    
-    // Créer un tableau de promesses pour mettre à jour chaque compétence
-    const updatePromises = skills.map((skill, index) => {
-      const { id } = skill;
-      return supabase
-        .from(TECH_SKILLS_TABLE)
-        .update({ 
-          order_index: index,
-          updated_at: new Date().toISOString() 
-        })
-        .eq('id', id)
-        .eq('user_id', userId);
-    });
-    
-    // Exécuter toutes les mises à jour en parallèle
-    const results = await Promise.all(updatePromises);
-    
-    // Vérifier s'il y a des erreurs
-    const errors = results.filter(result => result.error).map(result => result.error);
-    
-    if (errors.length > 0) {
-      throw new Error(`Erreurs lors de la mise à jour de l'ordre: ${JSON.stringify(errors)}`);
-    }
-    
-    return { success: true };
+    localStorage.setItem('cv_technical_skills_order', JSON.stringify(skills.map(skill => skill.id)));
   } catch (error) {
-    console.error('Erreur lors de la mise à jour de l\'ordre des compétences:', error);
-    throw error;
+    console.error('Erreur lors de la sauvegarde de l\'ordre:', error);
   }
+  
+  // Invalider le cache pour forcer un rechargement
+  invalidateCache(CACHE_KEYS.SKILLS);
 };
 
 /**
  * Récupère les expériences professionnelles de l'utilisateur
- * @returns {Promise<Array>} - La liste des expériences
+ * @returns {Promise<Array>} Liste des expériences
  */
-export const getExperiences = async () => {
-  try {
-    const userId = (await supabase.auth.getUser()).data.user?.id;
-    
-    if (!userId) {
-      throw new Error('Utilisateur non authentifié');
-    }
-    
-    let data, error;
-    
-    try {
-      // Essayer d'abord avec le tri par date de début
-      ({ data, error } = await supabase
-        .from(EXPERIENCES_TABLE)
-        .select('*')
-        .eq('user_id', userId)
-        .order('start_date', { ascending: false }));
-    } catch (sortError) {
-      console.warn('Erreur lors du tri par start_date:', sortError);
+export const getExperiences = async () => cachedQuery(
+    CACHE_KEYS.EXPERIENCES,
+    async () => {
+      // Récupérer les données depuis Supabase
+      const data = await handleSupabaseResponse(
+        () => supabase
+          .from('experiences')
+          .select('*')
+      );
       
-      // Fallback: récupérer sans tri
-      ({ data, error } = await supabase
-        .from(EXPERIENCES_TABLE)
-        .select('*')
-        .eq('user_id', userId));
-    }
-    
-    if (error) {
-      throw error;
-    }
-    
-    // Convertir les données en camelCase pour le client
-    return data ? data.map(item => toCamelCase(item)) : [];
-  } catch (error) {
-    console.error('Erreur lors de la récupération des expériences:', error);
-    throw error;
-  }
-};
-
-/**
- * Sauvegarde une expérience professionnelle dans Supabase
- * @param {Object} experience - L'expérience à sauvegarder
- * @returns {Promise<Object>} - Le résultat de l'opération
- */
-export const saveExperience = async (experience) => {
-  try {
-    const userId = (await supabase.auth.getUser()).data.user?.id;
-    
-    if (!userId) {
-      throw new Error('Utilisateur non authentifié');
-    }
-    
-    // Convertir les données en snake_case pour Supabase
-    let experienceSnakeCase = toSnakeCase(experience);
-    
-    // Vérifier et corriger les champs de date
-    if (experienceSnakeCase.start_date === '') {
-      experienceSnakeCase.start_date = null; // Utiliser NULL au lieu d'une chaîne vide
-    }
-    
-    if (experienceSnakeCase.end_date === '') {
-      experienceSnakeCase.end_date = null; // Utiliser NULL au lieu d'une chaîne vide
-    }
-    
-    // Ajouter l'ID utilisateur et les dates
-    experienceSnakeCase = {
-      ...experienceSnakeCase,
-      user_id: userId,
-      updated_at: new Date().toISOString(),
-    };
-    
-    let result;
-    
-    if (experience.id) {
-      // Mise à jour d'une expérience existante
-      result = await supabase
-        .from(EXPERIENCES_TABLE)
-        .update(experienceSnakeCase)
-        .eq('id', experience.id)
-        .eq('user_id', userId);
-    } else {
-      // Insertion d'une nouvelle expérience
-      experienceSnakeCase.created_at = new Date().toISOString();
-      
-      // Déterminer l'ordre maximum actuel
-      try {
-        const { data: maxOrderData } = await supabase
-          .from(EXPERIENCES_TABLE)
-          .select('order')
-          .eq('user_id', userId)
-          .order('order', { ascending: false })
-          .limit(1);
+      // Par défaut, on trie par date de début (la plus récente en premier)
+      const sortedByDate = [...data].sort((a, b) => {
+        // Si l'une des expériences est en cours, elle doit apparaître en premier
+        if (a.current && !b.current) return -1;
+        if (!a.current && b.current) return 1;
         
-        const maxOrder = maxOrderData && maxOrderData.length > 0 ? maxOrderData[0].order || 0 : 0;
-        experienceSnakeCase.order = maxOrder + 1;
-      } catch (orderError) {
-        console.warn('La colonne order pourrait ne pas exister:', orderError);
-        // Ne pas inclure le champ order si la colonne n'existe pas encore
-        delete experienceSnakeCase.order;
+        return new Date(b.start_date || 0) - new Date(a.start_date || 0);
+      });
+      
+      // Récupérer l'ordre depuis le localStorage
+      try {
+        const savedOrder = localStorage.getItem('cv_experiences_order');
+        if (savedOrder) {
+          const orderArray = JSON.parse(savedOrder);
+          
+          // Créer un map pour l'ordre des expériences
+          const orderMap = new Map();
+          orderArray.forEach((id, index) => {
+            orderMap.set(id, index);
+          });
+          
+          // Trier les données en fonction de l'ordre sauvegardé
+          return sortedByDate.sort((a, b) => {
+            const orderA = orderMap.has(a.id) ? orderMap.get(a.id) : Number.MAX_SAFE_INTEGER;
+            const orderB = orderMap.has(b.id) ? orderMap.get(b.id) : Number.MAX_SAFE_INTEGER;
+            return orderA - orderB;
+          });
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération de l\'ordre des expériences:', error);
       }
       
-      result = await supabase
-        .from(EXPERIENCES_TABLE)
-        .insert(experienceSnakeCase);
+      // Retourner les données triées par date si pas d'ordre sauvegardé
+      return sortedByDate;
     }
-    
-    if (result.error) {
-      throw result.error;
-    }
-    
-    return { success: true, data: result.data };
-  } catch (error) {
-    console.error('Erreur lors de la sauvegarde de l\'expérience:', error);
-    throw error;
-  }
+  );
+
+/**
+ * Sauvegarde une expérience professionnelle
+ * @param {Object} experience - Données de l'expérience
+ * @returns {Promise<Object>} Expérience sauvegardée
+ */
+export const saveExperience = async (experience) => {
+  const { user } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error('Utilisateur non authentifié');
+  
+  const result = await handleSupabaseResponse(
+    () => supabase.from('experiences').upsert(
+      {
+        user_id: user.id,
+        ...experience,
+        updated_at: new Date(),
+      },
+      { onConflict: 'id' }
+    ).select().single()
+  );
+  
+  // Invalider le cache après mise à jour
+  invalidateCache(CACHE_KEYS.EXPERIENCES);
+  
+  return result;
 };
 
 /**
  * Supprime une expérience professionnelle
- * @param {string} experienceId - L'identifiant de l'expérience à supprimer
- * @returns {Promise<Object>} - Le résultat de l'opération
+ * @param {string} experienceId - ID de l'expérience à supprimer
+ * @returns {Promise<void>}
  */
 export const deleteExperience = async (experienceId) => {
-  try {
-    const userId = (await supabase.auth.getUser()).data.user?.id;
-    
-    if (!userId) {
-      throw new Error('Utilisateur non authentifié');
-    }
-    
-    const { error } = await supabase
-      .from(EXPERIENCES_TABLE)
-      .delete()
-      .eq('id', experienceId)
-      .eq('user_id', userId);
-    
-    if (error) {
-      throw error;
-    }
-    
-    return { success: true };
-  } catch (error) {
-    console.error('Erreur lors de la suppression de l\'expérience:', error);
-    throw error;
-  }
+  await handleSupabaseResponse(
+    () => supabase.from('experiences').delete().eq('id', experienceId)
+  );
+  
+  // Invalider le cache après suppression
+  invalidateCache(CACHE_KEYS.EXPERIENCES);
 };
 
 /**
- * Met à jour l'ordre des expériences professionnelles
- * @param {Array} experienceOrders - Tableau d'objets contenant id et order
- * @returns {Promise<Object>} - Le résultat de l'opération
+ * Récupère les projets personnels de l'utilisateur
+ * @returns {Promise<Array>} Liste des projets
  */
-export const updateExperiencesOrder = async (experienceOrders) => {
-  try {
-    const userId = (await supabase.auth.getUser()).data.user?.id;
-    
-    if (!userId) {
-      throw new Error('Utilisateur non authentifié');
-    }
-    
-    // Vérifier que la colonne 'order' existe
-    try {
-      // Tentative de récupération avec tri par order pour vérifier si la colonne existe
-      await supabase
-        .from(EXPERIENCES_TABLE)
-        .select('id')
-        .eq('user_id', userId)
-        .order('order', { ascending: true })
-        .limit(1);
-    } catch (columnError) {
-      console.warn('La colonne order pourrait ne pas exister:', columnError);
-      // Attendre un peu de temps avant de continuer
-      await new Promise(resolve => setTimeout(resolve, 2000));
+export const getPersonalProjects = async () => cachedQuery(
+    CACHE_KEYS.PROJECTS,
+    async () => {
+      // Récupérer les données depuis Supabase
+      const data = await handleSupabaseResponse(
+        () => supabase
+          .from('personal_projects')
+          .select('*')
+      );
       
-      // Récupérer les expériences existantes pour les mettre à jour individuellement
-      const { data: existingExperiences } = await supabase
-        .from(EXPERIENCES_TABLE)
-        .select('id')
-        .eq('user_id', userId);
+      // Par défaut, on trie par date de début (la plus récente en premier)
+      const sortedByDate = [...data].sort((a, b) => new Date(b.start_date || 0) - new Date(a.start_date || 0));
       
-      if (existingExperiences && existingExperiences.length > 0) {
-        // Mettre à jour chaque expérience individuellement sans utiliser la colonne order
-        const updatePromises = experienceOrders.map(({ id, order }) => supabase
-            .from(EXPERIENCES_TABLE)
-            .update({ updated_at: new Date().toISOString() })
-            .eq('id', id)
-            .eq('user_id', userId));
-        
-        await Promise.all(updatePromises);
-        return { success: true, message: 'Mise à jour sans colonne order' };
-      }
-      
-      return { success: false, message: 'Impossible de mettre à jour l\'ordre (colonne manquante)' };
-    }
-    
-    // La colonne order existe, procéder normalement
-    // Utiliser une transaction Supabase pour mettre à jour toutes les positions
-    const updates = experienceOrders.map(({ id, order }) => ({
-      id,
-      order,
-      user_id: userId,
-      updated_at: new Date().toISOString(),
-    }));
-    
-    const { error } = await supabase.from(EXPERIENCES_TABLE).upsert(updates);
-    
-    if (error) {
-      throw error;
-    }
-    
-    return { success: true };
-  } catch (error) {
-    console.error('Erreur lors de la mise à jour de l\'ordre des expériences:', error);
-    throw error;
-  }
-};
-
-// Projets personnels
-export const getPersonalProjects = async () => {
-  try {
-    const userId = (await supabase.auth.getUser()).data.user?.id;
-    
-    if (!userId) {
-      throw new Error('Utilisateur non authentifié');
-    }
-    
-    const { data, error } = await supabase
-      .from(PERSONAL_PROJECTS_TABLE)
-      .select('*')
-      .eq('user_id', userId)
-      .order('order', { ascending: true });
-    
-    if (error) {
-      throw error;
-    }
-    
-    // Convertir les données en camelCase pour le client
-    return data ? data.map(project => {
-      const camelCaseProject = toCamelCase(project);
-      
-      // Conversion des dates si nécessaire
-      if (camelCaseProject.startDate) {
-        camelCaseProject.startDate = new Date(camelCaseProject.startDate);
-      }
-      
-      if (camelCaseProject.endDate) {
-        camelCaseProject.endDate = new Date(camelCaseProject.endDate);
-      }
-      
-      return camelCaseProject;
-    }) : [];
-  } catch (error) {
-    console.error('Erreur lors de la récupération des projets:', error);
-    throw error;
-  }
-};
-
-export const savePersonalProject = async (projectData) => {
-  try {
-    const userId = (await supabase.auth.getUser()).data.user?.id;
-    
-    if (!userId) {
-      throw new Error('Utilisateur non authentifié');
-    }
-    
-    // Extraire les propriétés pertinentes et ignorer screenshots
-    const { id, name, role, description, technologies, url, tags, startDate, endDate, isOngoing, visibility, order } = projectData;
-    const projectDataToSave = { name, role, description, technologies, url, tags, startDate, endDate, isOngoing, visibility, order };
-    
-    // Convertir les données en snake_case pour Supabase
-    let projectSnakeCase = toSnakeCase(projectDataToSave);
-    
-    // Ajouter l'ID utilisateur et les dates
-    projectSnakeCase = {
-      ...projectSnakeCase,
-      user_id: userId,
-      updated_at: new Date().toISOString(),
-    };
-    
-    let result;
-    
-    if (id) {
-      // Mise à jour d'un projet existant
-      result = await supabase
-        .from(PERSONAL_PROJECTS_TABLE)
-        .update(projectSnakeCase)
-        .eq('id', id)
-        .eq('user_id', userId);
-    } else {
-      // Insertion d'un nouveau projet
-      projectSnakeCase.created_at = new Date().toISOString();
-      
-      // Déterminer l'ordre maximum actuel
+      // Récupérer l'ordre depuis le localStorage
       try {
-        const { data: maxOrderData } = await supabase
-          .from(PERSONAL_PROJECTS_TABLE)
-          .select('order')
-          .eq('user_id', userId)
-          .order('order', { ascending: false })
-          .limit(1);
-        
-        const maxOrder = maxOrderData && maxOrderData.length > 0 ? maxOrderData[0].order || 0 : 0;
-        projectSnakeCase.order = maxOrder + 1;
-      } catch (orderError) {
-        console.warn('La colonne order pourrait ne pas exister:', orderError);
-        // Utiliser le timestamp actuel comme ordre par défaut si la colonne order n'existe pas
-        projectSnakeCase.order = Date.now();
+        const savedOrder = localStorage.getItem('cv_projects_order');
+        if (savedOrder) {
+          const orderArray = JSON.parse(savedOrder);
+          
+          // Créer un map pour l'ordre des projets
+          const orderMap = new Map();
+          orderArray.forEach((id, index) => {
+            orderMap.set(id, index);
+          });
+          
+          // Trier les données en fonction de l'ordre sauvegardé
+          return sortedByDate.sort((a, b) => {
+            const orderA = orderMap.has(a.id) ? orderMap.get(a.id) : Number.MAX_SAFE_INTEGER;
+            const orderB = orderMap.has(b.id) ? orderMap.get(b.id) : Number.MAX_SAFE_INTEGER;
+            return orderA - orderB;
+          });
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération de l\'ordre des projets:', error);
       }
       
-      result = await supabase
-        .from(PERSONAL_PROJECTS_TABLE)
-        .insert(projectSnakeCase);
+      // Retourner les données triées par date si pas d'ordre sauvegardé
+      return sortedByDate;
     }
-    
-    if (result.error) {
-      throw result.error;
-    }
-    
-    // Pour les nouveaux projets, récupérer l'ID généré
-    let savedProject = { id: id || null, ...projectDataToSave };
-    
-    if (!id && result.data) {
-      // Récupérer l'ID du projet nouvellement créé
-      const { data: newProject } = await supabase
-        .from(PERSONAL_PROJECTS_TABLE)
-        .select('id')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(1);
-      
-      if (newProject && newProject.length > 0) {
-        savedProject.id = newProject[0].id;
-      }
-    }
-    
-    return savedProject;
-  } catch (error) {
-    console.error('Erreur lors de la sauvegarde du projet:', error);
-    throw error;
-  }
-};
-
-export const deletePersonalProject = async (projectId) => {
-  try {
-    const userId = (await supabase.auth.getUser()).data.user?.id;
-    
-    if (!userId) {
-      throw new Error('Utilisateur non authentifié');
-    }
-    
-    const { error } = await supabase
-      .from(PERSONAL_PROJECTS_TABLE)
-      .delete()
-      .eq('id', projectId)
-      .eq('user_id', userId);
-    
-    if (error) {
-      throw error;
-    }
-    
-    return { success: true };
-  } catch (error) {
-    console.error('Erreur lors de la suppression du projet:', error);
-    throw error;
-  }
-};
-
-export const updatePersonalProjectsOrder = async (projects) => {
-  try {
-    const userId = (await supabase.auth.getUser()).data.user?.id;
-    
-    if (!userId) {
-      throw new Error('Utilisateur non authentifié');
-    }
-    
-    // Créer un tableau de promesses pour mettre à jour chaque projet
-    const updatePromises = projects.map((project, index) => supabase
-        .from(PERSONAL_PROJECTS_TABLE)
-        .update({ 
-          order: index,
-          updated_at: new Date().toISOString() 
-        })
-        .eq('id', project.id)
-        .eq('user_id', userId));
-    
-    // Exécuter toutes les mises à jour en parallèle
-    const results = await Promise.all(updatePromises);
-    
-    // Vérifier s'il y a des erreurs
-    const errors = results.filter(result => result.error).map(result => result.error);
-    
-    if (errors.length > 0) {
-      throw new Error(`Erreurs lors de la mise à jour de l'ordre: ${JSON.stringify(errors)}`);
-    }
-    
-    return { success: true };
-  } catch (error) {
-    console.error('Erreur lors de la mise à jour de l\'ordre des projets:', error);
-    throw error;
-  }
-};
-
-export const uploadProjectScreenshot = async (file) => {
-  try {
-    const userId = (await supabase.auth.getUser()).data.user?.id;
-    
-    if (!userId) {
-      throw new Error('Utilisateur non authentifié');
-    }
-    
-    const fileId = uuidv4();
-    const fileExtension = file.name.split('.').pop().toLowerCase();
-    const fileName = `project-screenshots/${userId}/${fileId}.${fileExtension}`;
-    
-    const { error: uploadError } = await supabase.storage
-      .from(STORAGE_BUCKET)
-      .upload(fileName, file, {
-        upsert: true,
-        contentType: file.type,
-      });
-    
-    if (uploadError) {
-      throw uploadError;
-    }
-    
-    // Obtenir l'URL publique de la capture d'écran
-    const { data: urlData } = supabase.storage
-      .from(STORAGE_BUCKET)
-      .getPublicUrl(fileName);
-    
-    return {
-      id: fileId,
-      url: urlData.publicUrl,
-      name: file.name,
-      path: fileName,
-    };
-  } catch (error) {
-    console.error('Erreur lors de l\'upload de la capture d\'écran:', error);
-    throw error;
-  }
-};
-
-export const deleteProjectScreenshot = async (screenshotPath) => {
-  try {
-    const { error: deleteError } = await supabase.storage
-      .from(STORAGE_BUCKET)
-      .remove([screenshotPath]);
-    
-    if (deleteError) {
-      throw deleteError;
-    }
-  } catch (error) {
-    console.error('Erreur lors de la suppression de la capture d\'écran:', error);
-    throw error;
-  }
-};
+  );
 
 /**
- * Récupère les formations et diplômes depuis Supabase
- * @returns {Promise<Array>} - Les formations et diplômes
+ * Sauvegarde un projet personnel
+ * @param {Object} project - Données du projet
+ * @returns {Promise<Object>} Projet sauvegardé
  */
-export const getEducation = async () => {
-  try {
-    const userId = (await supabase.auth.getUser()).data.user?.id;
-    
-    if (!userId) {
-      throw new Error('Utilisateur non authentifié');
-    }
-    
-    const { data, error } = await supabase
-      .from(EDUCATION_TABLE)
-      .select('*')
-      .eq('user_id', userId)
-      .order('order', { ascending: true });
-    
-    if (error) {
-      throw error;
-    }
-    
-    // Convertir les données de snake_case vers camelCase
-    return data ? data.map(item => toCamelCase(item)) : [];
-  } catch (error) {
-    console.error('Erreur lors de la récupération des formations:', error);
-    throw error;
-  }
+export const savePersonalProject = async (project) => {
+  const { user } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error('Utilisateur non authentifié');
+  
+  const result = await handleSupabaseResponse(
+    () => supabase.from('personal_projects').upsert(
+      {
+        user_id: user.id,
+        ...project,
+        updated_at: new Date(),
+      },
+      { onConflict: 'id' }
+    ).select().single()
+  );
+  
+  // Invalider le cache après mise à jour
+  invalidateCache(CACHE_KEYS.PROJECTS);
+  
+  return result;
 };
 
 /**
- * Sauvegarde une formation/diplôme dans Supabase
- * @param {Object} education - La formation/diplôme à sauvegarder
- * @returns {Promise<Object>} - Le résultat de l'opération
+ * Supprime un projet personnel
+ * @param {string} projectId - ID du projet à supprimer
+ * @returns {Promise<void>}
+ */
+export const deletePersonalProject = async (projectId) => {
+  await handleSupabaseResponse(
+    () => supabase.from('personal_projects').delete().eq('id', projectId)
+  );
+  
+  // Invalider le cache après suppression
+  invalidateCache(CACHE_KEYS.PROJECTS);
+};
+
+/**
+ * Récupère les formations et diplômes de l'utilisateur
+ * @returns {Promise<Array>} Liste des formations
+ */
+export const getEducation = async () => cachedQuery(
+    CACHE_KEYS.EDUCATION,
+    async () => {
+      // Récupérer les données depuis Supabase
+      const data = await handleSupabaseResponse(
+        () => supabase
+          .from('education')
+          .select('*')
+      );
+      
+      // Par défaut, on trie par date de fin (la plus récente en premier)
+      const sortedByDate = [...data].sort((a, b) => new Date(b.end_date || 0) - new Date(a.end_date || 0));
+      
+      // Récupérer l'ordre depuis le localStorage
+      try {
+        const savedOrder = localStorage.getItem('cv_education_order');
+        if (savedOrder) {
+          const orderArray = JSON.parse(savedOrder);
+          
+          // Créer un map pour l'ordre des formations
+          const orderMap = new Map();
+          orderArray.forEach((id, index) => {
+            orderMap.set(id, index);
+          });
+          
+          // Trier les données en fonction de l'ordre sauvegardé
+          return sortedByDate.sort((a, b) => {
+            const orderA = orderMap.has(a.id) ? orderMap.get(a.id) : Number.MAX_SAFE_INTEGER;
+            const orderB = orderMap.has(b.id) ? orderMap.get(b.id) : Number.MAX_SAFE_INTEGER;
+            return orderA - orderB;
+          });
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération de l\'ordre des formations:', error);
+      }
+      
+      // Retourner les données triées par date si pas d'ordre sauvegardé
+      return sortedByDate;
+    }
+  );
+
+/**
+ * Sauvegarde une formation ou diplôme
+ * @param {Object} education - Données de la formation
+ * @returns {Promise<Object>} Formation sauvegardée
  */
 export const saveEducation = async (education) => {
-  try {
-    const userId = (await supabase.auth.getUser()).data.user?.id;
-    
-    if (!userId) {
-      throw new Error('Utilisateur non authentifié');
-    }
-    
-    // Convertir les données en snake_case pour Supabase
-    const educationSnakeCase = toSnakeCase(education);
-    
-    let result;
-    
-    // Si l'ID est fourni, mettre à jour l'enregistrement existant
-    if (education.id) {
-      console.log(`Mise à jour de la formation: ${education.id}`);
-      
-      result = await supabase
-        .from(EDUCATION_TABLE)
-        .update({
-          ...educationSnakeCase,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', education.id);
-    } else {
-      console.log('Création d\'une nouvelle formation');
-      
-      // Génération d'un nouvel ID
-      const newId = uuidv4();
-      
-      // Récupérer le nombre total de formations pour déterminer l'ordre
-      const { data: existingEducation } = await supabase
-        .from(EDUCATION_TABLE)
-        .select('id')
-        .eq('user_id', userId);
-      
-      const order = existingEducation ? existingEducation.length : 0;
-      
-      result = await supabase
-        .from(EDUCATION_TABLE)
-        .insert({
-          id: newId,
-          user_id: userId,
-          ...educationSnakeCase,
-          order,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        });
-    }
-    
-    if (result.error) {
-      throw result.error;
-    }
-    
-    return { success: true, id: education.id || result.data?.[0]?.id };
-  } catch (error) {
-    console.error('Erreur lors de la sauvegarde de la formation:', error);
-    throw error;
-  }
+  const { user } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error('Utilisateur non authentifié');
+  
+  const result = await handleSupabaseResponse(
+    () => supabase.from('education').upsert(
+      {
+        user_id: user.id,
+        ...education,
+        updated_at: new Date(),
+      },
+      { onConflict: 'id' }
+    ).select().single()
+  );
+  
+  // Invalider le cache après mise à jour
+  invalidateCache(CACHE_KEYS.EDUCATION);
+  
+  return result;
 };
 
 /**
- * Supprime une formation/diplôme de Supabase
- * @param {string} educationId - L'ID de la formation à supprimer
- * @returns {Promise<Object>} - Le résultat de l'opération
+ * Supprime une formation ou diplôme
+ * @param {string} educationId - ID de la formation à supprimer
+ * @returns {Promise<void>}
  */
 export const deleteEducation = async (educationId) => {
+  await handleSupabaseResponse(
+    () => supabase.from('education').delete().eq('id', educationId)
+  );
+  
+  // Invalider le cache après suppression
+  invalidateCache(CACHE_KEYS.EDUCATION);
+};
+
+/**
+ * Met à jour l'ordre d'affichage des formations
+ * @param {Array} educationItems - Liste des formations avec leur nouvel ordre
+ * @returns {Promise<void>}
+ */
+export const updateEducationOrder = async (educationItems) => {
+  if (!educationItems || educationItems.length === 0) return;
+  
+  // Stocker l'ordre dans le localStorage seulement
   try {
-    const userId = (await supabase.auth.getUser()).data.user?.id;
-    
-    if (!userId) {
-      throw new Error('Utilisateur non authentifié');
-    }
-    
-    const { error } = await supabase
-      .from(EDUCATION_TABLE)
-      .delete()
-      .eq('id', educationId)
-      .eq('user_id', userId);
-    
-    if (error) {
-      throw error;
-    }
-    
-    return { success: true };
+    localStorage.setItem('cv_education_order', JSON.stringify(educationItems.map(edu => edu.id)));
   } catch (error) {
-    console.error('Erreur lors de la suppression de la formation:', error);
+    console.error('Erreur lors de la sauvegarde de l\'ordre des formations:', error);
+  }
+  
+  // Invalider le cache pour forcer un rechargement
+  invalidateCache(CACHE_KEYS.EDUCATION);
+};
+
+/**
+ * Met à jour l'ordre d'affichage des expériences professionnelles
+ * @param {Array} experiencesItems - Liste des expériences avec leur nouvel ordre
+ * @returns {Promise<void>}
+ */
+export const updateExperiencesOrder = async (experiencesItems) => {
+  if (!experiencesItems || experiencesItems.length === 0) return;
+  
+  // Stocker l'ordre dans le localStorage seulement
+  try {
+    localStorage.setItem('cv_experiences_order', JSON.stringify(experiencesItems.map(exp => exp.id)));
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde de l\'ordre des expériences:', error);
+  }
+  
+  // Invalider le cache pour forcer un rechargement
+  invalidateCache(CACHE_KEYS.EXPERIENCES);
+};
+
+/**
+ * Met à jour l'ordre d'affichage des projets personnels
+ * @param {Array} projectItems - Liste des projets avec leur nouvel ordre
+ * @returns {Promise<void>}
+ */
+export const updatePersonalProjectsOrder = async (projectItems) => {
+  if (!projectItems || projectItems.length === 0) return;
+  
+  // Stocker l'ordre dans le localStorage seulement
+  try {
+    localStorage.setItem('cv_projects_order', JSON.stringify(projectItems.map(project => project.id)));
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde de l\'ordre des projets:', error);
+  }
+  
+  // Invalider le cache pour forcer un rechargement
+  invalidateCache(CACHE_KEYS.PROJECTS);
+};
+
+/**
+ * Télécharge une capture d'écran pour un projet personnel
+ * @param {File} file - Fichier image à télécharger
+ * @returns {Promise<Object>} Informations sur la capture d'écran téléchargée
+ */
+export const uploadProjectScreenshot = async (file) => {
+  const { user } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error('Utilisateur non authentifié');
+  
+  // Générer un nom de fichier unique
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${user.id}/${uuidv4()}.${fileExt}`;
+  const filePath = `projects/${fileName}`;
+  
+  // Télécharger le fichier dans le storage de Supabase
+  const { error } = await supabase.storage
+    .from(STORAGE_BUCKET)
+    .upload(filePath, file, {
+      cacheControl: '3600',
+      upsert: false,
+    });
+  
+  if (error) {
+    console.error('Erreur lors du téléchargement:', error);
+    throw new Error(`Erreur lors du téléchargement: ${error.message}`);
+  }
+  
+  // Récupérer l'URL publique du fichier
+  const { data: { publicUrl } } = supabase.storage
+    .from(STORAGE_BUCKET)
+    .getPublicUrl(filePath);
+  
+  // Retourner les informations sur la capture d'écran
+  return {
+    id: uuidv4(),
+    url: publicUrl,
+    name: file.name,
+    path: filePath,
+  };
+};
+
+/**
+ * Supprime une capture d'écran d'un projet personnel
+ * @param {string} filePath - Chemin du fichier à supprimer
+ * @returns {Promise<void>}
+ */
+export const deleteProjectScreenshot = async (filePath) => {
+  const { user } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error('Utilisateur non authentifié');
+  
+  // Vérifier que le chemin contient l'ID de l'utilisateur pour empêcher la suppression non autorisée
+  if (!filePath.includes(user.id)) {
+    throw new Error('Autorisation insuffisante pour supprimer ce fichier');
+  }
+  
+  // Supprimer le fichier du storage de Supabase
+  const { error } = await supabase.storage
+    .from(STORAGE_BUCKET)
+    .remove([filePath]);
+  
+  if (error) {
+    console.error('Erreur lors de la suppression:', error);
+    throw new Error(`Erreur lors de la suppression: ${error.message}`);
+  }
+};
+
+/**
+ * Vérifie la cohérence des données à travers les sections
+ * @returns {Promise<Object>} Rapport de validation
+ */
+export const validateCrossFormData = async () => {
+  try {
+    // Récupérer toutes les données
+    const [personalInfo, skills, experiences, projects, education] = await Promise.all([
+      getPersonalInfo(),
+      getTechnicalSkills(),
+      getExperiences(),
+      getPersonalProjects(),
+      getEducation(),
+    ]);
+    
+    const issues = [];
+    
+    // Vérifier les compétences mentionnées dans les expériences
+    if (experiences && skills) {
+      const skillNames = skills.map(s => s.name.toLowerCase());
+      
+      experiences.forEach(exp => {
+        if (exp.technologies && Array.isArray(exp.technologies)) {
+          exp.technologies.forEach(tech => {
+            if (!skillNames.includes(tech.toLowerCase())) {
+              issues.push({
+                section: 'experiences',
+                item: exp.id,
+                issue: `La compétence "${tech}" mentionnée dans l'expérience "${exp.title}" n'existe pas dans vos compétences techniques.`,
+                type: 'missing_skill',
+                suggestion: 'Ajoutez cette compétence à votre liste de compétences techniques.',
+              });
+            }
+          });
+        }
+      });
+    }
+    
+    // Vérifier les compétences mentionnées dans les projets
+    if (projects && skills) {
+      const skillNames = skills.map(s => s.name.toLowerCase());
+      
+      projects.forEach(proj => {
+        if (proj.technologies && Array.isArray(proj.technologies)) {
+          proj.technologies.forEach(tech => {
+            if (!skillNames.includes(tech.toLowerCase())) {
+              issues.push({
+                section: 'projects',
+                item: proj.id,
+                issue: `La compétence "${tech}" mentionnée dans le projet "${proj.name}" n'existe pas dans vos compétences techniques.`,
+                type: 'missing_skill',
+                suggestion: 'Ajoutez cette compétence à votre liste de compétences techniques.',
+              });
+            }
+          });
+        }
+      });
+    }
+    
+    // Vérifier la cohérence des dates
+    if (experiences) {
+      experiences.forEach(exp => {
+        if (exp.end_date && new Date(exp.start_date) > new Date(exp.end_date)) {
+          issues.push({
+            section: 'experiences',
+            item: exp.id,
+            issue: `Dans l'expérience "${exp.title}", la date de début est postérieure à la date de fin.`,
+            type: 'date_inconsistency',
+            suggestion: 'Corrigez les dates pour assurer leur cohérence chronologique.',
+          });
+        }
+      });
+    }
+    
+    if (projects) {
+      projects.forEach(proj => {
+        if (proj.end_date && new Date(proj.start_date) > new Date(proj.end_date)) {
+          issues.push({
+            section: 'projects',
+            item: proj.id,
+            issue: `Dans le projet "${proj.name}", la date de début est postérieure à la date de fin.`,
+            type: 'date_inconsistency',
+            suggestion: 'Corrigez les dates pour assurer leur cohérence chronologique.',
+          });
+        }
+      });
+    }
+    
+    if (education) {
+      education.forEach(edu => {
+        if (edu.end_date && new Date(edu.start_date) > new Date(edu.end_date)) {
+          issues.push({
+            section: 'education',
+            item: edu.id,
+            issue: `Dans la formation "${edu.degree}", la date de début est postérieure à la date de fin.`,
+            type: 'date_inconsistency',
+            suggestion: 'Corrigez les dates pour assurer leur cohérence chronologique.',
+          });
+        }
+      });
+    }
+    
+    return {
+      valid: issues.length === 0,
+      issues,
+      data: {
+        personalInfo,
+        skills,
+        experiences,
+        projects,
+        education,
+      }
+    };
+  } catch (error) {
+    console.error('Erreur lors de la validation transversale:', error);
     throw error;
   }
 };
 
 /**
- * Met à jour l'ordre des formations dans Supabase
- * @param {Array} educationOrders - Tableau des formations avec leur ordre
- * @returns {Promise<Object>} - Le résultat de l'opération
+ * Génère des suggestions intelligentes basées sur les données existantes
+ * @returns {Promise<Object>} Suggestions pour améliorer le CV
  */
-export const updateEducationOrder = async (educationOrders) => {
+export const generateIntelligentSuggestions = async () => {
   try {
-    const userId = (await supabase.auth.getUser()).data.user?.id;
+    const [personalInfo, skills, experiences, projects, education] = await Promise.all([
+      getPersonalInfo(),
+      getTechnicalSkills(),
+      getExperiences(),
+      getPersonalProjects(),
+      getEducation(),
+    ]);
     
-    if (!userId) {
-      throw new Error('Utilisateur non authentifié');
+    const suggestions = [];
+    
+    // Suggestions pour les infos personnelles
+    if (personalInfo) {
+      if (!personalInfo.summary || personalInfo.summary.length < 100) {
+        suggestions.push({
+          section: 'personalInfo',
+          type: 'improvement',
+          issue: 'Votre résumé professionnel est trop court ou inexistant.',
+          suggestion: 'Ajoutez un résumé professionnel de 3-5 phrases mettant en avant votre expertise et vos objectifs.',
+        });
+      }
+      
+      if (!personalInfo.linkedin) {
+        suggestions.push({
+          section: 'personalInfo',
+          type: 'missing_info',
+          issue: 'Aucun profil LinkedIn n\'est renseigné.',
+          suggestion: 'Ajoutez votre profil LinkedIn pour permettre aux recruteurs de vous contacter facilement.',
+        });
+      }
     }
     
-    // Filtrer les items sans ID valide pour éviter les erreurs
-    const validItems = educationOrders.filter(item => item && item.id);
-    
-    if (validItems.length === 0) {
-      console.warn('Aucun élément valide à mettre à jour');
-      return { success: false, message: 'Aucun élément valide' };
+    // Suggestions pour les compétences
+    if (skills) {
+      if (skills.length < 5) {
+        suggestions.push({
+          section: 'skills',
+          type: 'improvement',
+          issue: 'Vous avez peu de compétences techniques listées.',
+          suggestion: 'Ajoutez au moins 5-10 compétences techniques pertinentes pour votre domaine.',
+        });
+      }
+      
+      const highLevelSkills = skills.filter(s => s.level >= 4);
+      if (highLevelSkills.length < 3) {
+        suggestions.push({
+          section: 'skills',
+          type: 'improvement',
+          issue: 'Vous avez peu de compétences de niveau avancé/expert.',
+          suggestion: 'Identifiez vos compétences les plus fortes et mettez-les en valeur avec un niveau approprié.',
+        });
+      }
     }
     
-    // Créer un tableau de promesses pour les mises à jour d'ordre
-    const updatePromises = validItems.map((item, index) => 
-      supabase
-        .from(EDUCATION_TABLE)
-        .update({ 
-          order: index,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', item.id)
-        .eq('user_id', userId)
-    );
-    
-    // Exécuter toutes les mises à jour en parallèle
-    const results = await Promise.all(updatePromises);
-    
-    // Vérifier s'il y a des erreurs
-    const errors = results.filter(result => result.error).map(result => result.error);
-    
-    if (errors.length > 0) {
-      console.error('Erreurs lors de la mise à jour de l\'ordre:', errors);
-      throw new Error(`${errors.length} erreurs lors de la mise à jour de l'ordre`);
+    // Suggestions pour les expériences
+    if (experiences) {
+      if (experiences.length === 0) {
+        suggestions.push({
+          section: 'experiences',
+          type: 'missing_info',
+          issue: 'Aucune expérience professionnelle n\'est renseignée.',
+          suggestion: 'Ajoutez vos expériences professionnelles, même les stages et emplois à temps partiel.',
+        });
+      } else {
+        experiences.forEach(exp => {
+          if (!exp.description || exp.description.length < 100) {
+            suggestions.push({
+              section: 'experiences',
+              item: exp.id,
+              type: 'improvement',
+              issue: `La description de votre expérience "${exp.title}" est trop courte.`,
+              suggestion: 'Détaillez davantage vos responsabilités et réalisations (3-5 points).',
+            });
+          }
+          
+          if (!exp.technologies || exp.technologies.length === 0) {
+            suggestions.push({
+              section: 'experiences',
+              item: exp.id,
+              type: 'missing_info',
+              issue: `Aucune technologie n'est mentionnée pour votre expérience "${exp.title}".`,
+              suggestion: 'Ajoutez les technologies et outils utilisés pendant cette expérience.',
+            });
+          }
+        });
+      }
     }
     
-    return { success: true };
+    // Retourner les suggestions avec les données
+    return {
+      suggestions,
+      data: {
+        personalInfo,
+        skills,
+        experiences,
+        projects,
+        education,
+      }
+    };
   } catch (error) {
-    console.error('Erreur lors de la mise à jour de l\'ordre des formations:', error);
+    console.error('Erreur lors de la génération de suggestions:', error);
     throw error;
   }
 }; 
