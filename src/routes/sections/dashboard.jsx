@@ -13,6 +13,7 @@ import { usePathname } from '../hooks';
 // ----------------------------------------------------------------------
 
 const CVBuilderPage = lazy(() => import('src/sections/cv/cv-builder'));
+const TechnicalSkillsPage = lazy(() => import('src/sections/cv/skills'));
 
 // ----------------------------------------------------------------------
 
@@ -38,7 +39,7 @@ export const dashboardRoutes = [
     children: [
       { element: <CVBuilderPage />, index: true },
       { path: 'personal-info', element: <CVBuilderPage /> },
-      { path: 'technical-skills', element: <CVBuilderPage /> },
+      { path: 'technical-skills', element: <TechnicalSkillsPage /> },
       { path: 'professional-experience', element: <CVBuilderPage /> },
       { path: 'personal-projects', element: <CVBuilderPage /> },
       { path: 'education', element: <CVBuilderPage /> },

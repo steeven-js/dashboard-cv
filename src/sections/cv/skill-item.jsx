@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
-import { useDraggable } from '@dnd-kit/core';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -8,7 +7,6 @@ import Chip from '@mui/material/Chip';
 import Menu from '@mui/material/Menu';
 import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
-import { useTheme } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -17,40 +15,41 @@ import ListItemText from '@mui/material/ListItemText';
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 
+/**
+ * Item représentant une compétence technique
+ * Affiche les détails d'une compétence
+ * 
+ * @param {Object} props - Propriétés du composant
+ * @param {Object} props.skill - Données de la compétence à afficher
+ * @param {Function} props.onEdit - Fonction appelée pour éditer
+ * @param {Function} props.onDelete - Fonction appelée pour supprimer
+ * @param {Object} props.dragHandleProps - Propriétés pour le drag-and-drop
+ */
 export default function SkillItem({
   skill,
-  index,
   onEdit,
   onDelete,
-  dragHandleProps,
+  dragHandleProps = {},
 }) {
-  const theme = useTheme();
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id: skill.id || `skill-${index}`,
-  });
 
-  const dragStyle = transform
-    ? {
-        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-        zIndex: 10,
-        boxShadow: theme.customShadows.z16,
-      }
-    : {};
-
+  // Ouvrir le menu d'actions
   const handleMenuOpen = (event) => {
     setMenuAnchorEl(event.currentTarget);
   };
 
+  // Fermer le menu d'actions
   const handleMenuClose = () => {
     setMenuAnchorEl(null);
   };
 
+  // Gérer l'édition
   const handleEditClick = () => {
-    onEdit(skill);
+    onEdit(skill.id);
     handleMenuClose();
   };
 
+  // Gérer la suppression
   const handleDeleteClick = () => {
     onDelete(skill.id);
     handleMenuClose();
@@ -68,9 +67,9 @@ export default function SkillItem({
       {[1, 2, 3, 4, 5].map((star) => (
         <Iconify
           key={star}
-          icon={star <= level ? 'solar:star-bold' : 'solar:star-outline'}
+          icon={star <= level ? 'solar:star-bold' : 'solar:star-linear'}
           sx={{
-            color: star <= level ? 'warning.main' : 'divider',
+            color: star <= level ? 'warning.main' : 'text.disabled',
             width: 18,
             height: 18,
           }}
@@ -81,20 +80,16 @@ export default function SkillItem({
 
   return (
     <Card
-      ref={setNodeRef}
       sx={{
         p: 2,
-        mb: 2,
         position: 'relative',
-        ...dragStyle,
       }}
     >
       <Stack direction="row" alignItems="center" spacing={2}>
-        {/* Drag handle */}
+        {/* Poignée de glisser-déposer */}
         <Box
-          {...attributes}
-          {...listeners}
-          {...dragHandleProps}
+          {...(dragHandleProps.attributes || {})}
+          {...(dragHandleProps.listeners || {})}
           sx={{
             cursor: 'grab',
             display: 'flex',
@@ -102,7 +97,7 @@ export default function SkillItem({
             color: 'text.disabled',
           }}
         >
-          <Iconify icon="solar:hamburger-menu-line-duotone" width={20} />
+          <Iconify icon="solar:hamburger-menu-linear" width={24} />
         </Box>
 
         {/* Contenu principal */}
@@ -137,13 +132,10 @@ export default function SkillItem({
         </Stack>
 
         {/* Indicateur de visibilité */}
-        <Box>
+        <Box sx={{ color: skill.visibility ? 'primary.main' : 'text.disabled' }}>
           <Iconify
-            icon={skill.visibility ? 'solar:eye-bold' : 'solar:eye-closed-line-duotone'}
-            sx={{
-              color: skill.visibility ? 'primary.main' : 'text.disabled',
-              mr: 1,
-            }}
+            icon={skill.visibility ? 'solar:eye-bold' : 'solar:eye-closed-bold'}
+            width={20}
           />
         </Box>
 
@@ -187,7 +179,6 @@ SkillItem.propTypes = {
     tags: PropTypes.arrayOf(PropTypes.string),
     visibility: PropTypes.bool,
   }).isRequired,
-  index: PropTypes.number.isRequired,
   onEdit: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
   dragHandleProps: PropTypes.object,
