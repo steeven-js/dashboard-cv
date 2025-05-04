@@ -17,6 +17,7 @@ const PersonalInfoPage = lazy(() => import('src/pages/dashboard/personal-info'))
 const TechnicalSkillsPage = lazy(() => import('src/pages/dashboard/technical-skills'));
 const ProfessionalExperiencePage = lazy(() => import('src/pages/dashboard/professional-experience'));
 const PersonalProjectsPage = lazy(() => import('src/pages/dashboard/personal-projects'));
+const EducationPage = lazy(() => import('src/pages/dashboard/education'));
 
 // ----------------------------------------------------------------------
 
@@ -45,6 +46,7 @@ export const dashboardRoutes = [
       { path: 'technical-skills', element: <TechnicalSkillsPage /> },
       { path: 'professional-experience', element: <ProfessionalExperiencePage /> },
       { path: 'personal-projects', element: <PersonalProjectsPage /> },
+      { path: 'education', element: <EducationPage /> },
     ],
   },
 ];

@@ -66,6 +66,11 @@ export const navData = [
         path: paths.dashboard.personalProjects, 
         icon: ICONS.folder 
       },
+      { 
+        title: 'Formations et Diplômes', 
+        path: paths.dashboard.education, 
+        icon: ICONS.course 
+      },
     ],
   },
 ];

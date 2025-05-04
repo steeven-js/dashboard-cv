@@ -11,6 +11,7 @@ const CV_TABLE = 'personal_info';
 const TECH_SKILLS_TABLE = 'technical_skills';
 const EXPERIENCES_TABLE = 'experiences';
 const PERSONAL_PROJECTS_TABLE = 'personal_projects';
+const EDUCATION_TABLE = 'education';
 // Bucket de stockage pour les avatars
 const STORAGE_BUCKET = 'dashboard-cv';
 
@@ -854,6 +855,183 @@ export const deleteProjectScreenshot = async (screenshotPath) => {
     }
   } catch (error) {
     console.error('Erreur lors de la suppression de la capture d\'écran:', error);
+    throw error;
+  }
+};
+
+/**
+ * Récupère les formations et diplômes depuis Supabase
+ * @returns {Promise<Array>} - Les formations et diplômes
+ */
+export const getEducation = async () => {
+  try {
+    const userId = (await supabase.auth.getUser()).data.user?.id;
+    
+    if (!userId) {
+      throw new Error('Utilisateur non authentifié');
+    }
+    
+    const { data, error } = await supabase
+      .from(EDUCATION_TABLE)
+      .select('*')
+      .eq('user_id', userId)
+      .order('order', { ascending: true });
+    
+    if (error) {
+      throw error;
+    }
+    
+    // Convertir les données de snake_case vers camelCase
+    return data ? data.map(item => toCamelCase(item)) : [];
+  } catch (error) {
+    console.error('Erreur lors de la récupération des formations:', error);
+    throw error;
+  }
+};
+
+/**
+ * Sauvegarde une formation/diplôme dans Supabase
+ * @param {Object} education - La formation/diplôme à sauvegarder
+ * @returns {Promise<Object>} - Le résultat de l'opération
+ */
+export const saveEducation = async (education) => {
+  try {
+    const userId = (await supabase.auth.getUser()).data.user?.id;
+    
+    if (!userId) {
+      throw new Error('Utilisateur non authentifié');
+    }
+    
+    // Convertir les données en snake_case pour Supabase
+    const educationSnakeCase = toSnakeCase(education);
+    
+    let result;
+    
+    // Si l'ID est fourni, mettre à jour l'enregistrement existant
+    if (education.id) {
+      console.log(`Mise à jour de la formation: ${education.id}`);
+      
+      result = await supabase
+        .from(EDUCATION_TABLE)
+        .update({
+          ...educationSnakeCase,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', education.id);
+    } else {
+      console.log('Création d\'une nouvelle formation');
+      
+      // Génération d'un nouvel ID
+      const newId = uuidv4();
+      
+      // Récupérer le nombre total de formations pour déterminer l'ordre
+      const { data: existingEducation } = await supabase
+        .from(EDUCATION_TABLE)
+        .select('id')
+        .eq('user_id', userId);
+      
+      const order = existingEducation ? existingEducation.length : 0;
+      
+      result = await supabase
+        .from(EDUCATION_TABLE)
+        .insert({
+          id: newId,
+          user_id: userId,
+          ...educationSnakeCase,
+          order,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        });
+    }
+    
+    if (result.error) {
+      throw result.error;
+    }
+    
+    return { success: true, id: education.id || result.data?.[0]?.id };
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde de la formation:', error);
+    throw error;
+  }
+};
+
+/**
+ * Supprime une formation/diplôme de Supabase
+ * @param {string} educationId - L'ID de la formation à supprimer
+ * @returns {Promise<Object>} - Le résultat de l'opération
+ */
+export const deleteEducation = async (educationId) => {
+  try {
+    const userId = (await supabase.auth.getUser()).data.user?.id;
+    
+    if (!userId) {
+      throw new Error('Utilisateur non authentifié');
+    }
+    
+    const { error } = await supabase
+      .from(EDUCATION_TABLE)
+      .delete()
+      .eq('id', educationId)
+      .eq('user_id', userId);
+    
+    if (error) {
+      throw error;
+    }
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Erreur lors de la suppression de la formation:', error);
+    throw error;
+  }
+};
+
+/**
+ * Met à jour l'ordre des formations dans Supabase
+ * @param {Array} educationOrders - Tableau des formations avec leur ordre
+ * @returns {Promise<Object>} - Le résultat de l'opération
+ */
+export const updateEducationOrder = async (educationOrders) => {
+  try {
+    const userId = (await supabase.auth.getUser()).data.user?.id;
+    
+    if (!userId) {
+      throw new Error('Utilisateur non authentifié');
+    }
+    
+    // Filtrer les items sans ID valide pour éviter les erreurs
+    const validItems = educationOrders.filter(item => item && item.id);
+    
+    if (validItems.length === 0) {
+      console.warn('Aucun élément valide à mettre à jour');
+      return { success: false, message: 'Aucun élément valide' };
+    }
+    
+    // Créer un tableau de promesses pour les mises à jour d'ordre
+    const updatePromises = validItems.map((item, index) => 
+      supabase
+        .from(EDUCATION_TABLE)
+        .update({ 
+          order: index,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', item.id)
+        .eq('user_id', userId)
+    );
+    
+    // Exécuter toutes les mises à jour en parallèle
+    const results = await Promise.all(updatePromises);
+    
+    // Vérifier s'il y a des erreurs
+    const errors = results.filter(result => result.error).map(result => result.error);
+    
+    if (errors.length > 0) {
+      console.error('Erreurs lors de la mise à jour de l\'ordre:', errors);
+      throw new Error(`${errors.length} erreurs lors de la mise à jour de l'ordre`);
+    }
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour de l\'ordre des formations:', error);
     throw error;
   }
 }; 
