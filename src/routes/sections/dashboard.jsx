@@ -12,12 +12,7 @@ import { usePathname } from '../hooks';
 
 // ----------------------------------------------------------------------
 
-const IndexPage = lazy(() => import('src/pages/dashboard/personal-info'));
-const PersonalInfoPage = lazy(() => import('src/pages/dashboard/personal-info'));
-const TechnicalSkillsPage = lazy(() => import('src/pages/dashboard/technical-skills'));
-const ProfessionalExperiencePage = lazy(() => import('src/pages/dashboard/professional-experience'));
-const PersonalProjectsPage = lazy(() => import('src/pages/dashboard/personal-projects'));
-const EducationPage = lazy(() => import('src/pages/dashboard/education'));
+const CVBuilderPage = lazy(() => import('src/sections/cv/cv-builder'));
 
 // ----------------------------------------------------------------------
 
@@ -41,12 +36,12 @@ export const dashboardRoutes = [
     path: 'dashboard',
     element: CONFIG.auth.skip ? dashboardLayout() : <AuthGuard>{dashboardLayout()}</AuthGuard>,
     children: [
-      { element: <IndexPage />, index: true },
-      { path: 'personal-info', element: <PersonalInfoPage /> },
-      { path: 'technical-skills', element: <TechnicalSkillsPage /> },
-      { path: 'professional-experience', element: <ProfessionalExperiencePage /> },
-      { path: 'personal-projects', element: <PersonalProjectsPage /> },
-      { path: 'education', element: <EducationPage /> },
+      { element: <CVBuilderPage />, index: true },
+      { path: 'personal-info', element: <CVBuilderPage /> },
+      { path: 'technical-skills', element: <CVBuilderPage /> },
+      { path: 'professional-experience', element: <CVBuilderPage /> },
+      { path: 'personal-projects', element: <CVBuilderPage /> },
+      { path: 'education', element: <CVBuilderPage /> },
     ],
   },
 ];
