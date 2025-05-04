@@ -4,13 +4,13 @@
 
 ```
 Semaine 1:
-[x ] [XXXXX] Configuration du projet et environnement
+[x] [XXXXX] Configuration du projet et environnement
 [x] [XXXXX] Mise en place de Supabase
-[x ] [XXX--] Création des tables et relations
+[x] [XXX--] Création des tables et relations
 
 Semaine 2:
 [x] [XXXXX] Authentification et profil utilisateur
-[x ] [XXXXX] Formulaires de saisie des informations
+[x] [XXXXX] Formulaires de saisie des informations
 [ ] [XXXXX] Interface de gestion des compétences
 [ ] [XXX--] Interface de gestion des expériences
 
@@ -32,7 +32,7 @@ Je vais adapter les étapes de développement en prenant en compte l'architectur
 
 ## Formulaires de saisie des informations - Découpe adaptée
 
-[x ] ### Étape 1 : Structure de base des formulaires et configuration
+[x] ### Étape 1 : Structure de base des formulaires et configuration
 
 ```
 Mettre en place la structure de base des formulaires en utilisant les composants existants :
@@ -44,7 +44,7 @@ Mettre en place la structure de base des formulaires en utilisant les composants
 6. Implémenter la persistance des données avec Supabase
 ```
 
-[x ] ### Étape 2 : Formulaire d'informations personnelles
+[x] ### Étape 2 : Formulaire d'informations personnelles
 
 ```
 Développer le formulaire d'informations personnelles en utilisant les composants existants :
@@ -58,7 +58,7 @@ Développer le formulaire d'informations personnelles en utilisant les composant
 8. Implémenter la sauvegarde automatique vers Supabase avec feedback visuel (snackbar)
 ```
 
-[x ] ### Étape 3 : Formulaire de gestion des compétences techniques
+[x] ### Étape 3 : Formulaire de gestion des compétences techniques
 
 ```
 Créer le formulaire de gestion des compétences techniques :
@@ -74,7 +74,7 @@ Créer le formulaire de gestion des compétences techniques :
 10. Intégrer la sauvegarde dans Supabase après chaque modification
 ```
 
-[x ] ### Étape 4 : Formulaire d'expériences professionnelles
+[x] ### Étape 4 : Formulaire d'expériences professionnelles
 
 ```
 Développer le formulaire de gestion des expériences professionnelles :
@@ -91,7 +91,7 @@ Développer le formulaire de gestion des expériences professionnelles :
 11. Mettre en place confirmation-dialog.jsx pour la suppression d'une expérience
 ```
 
-[x ] ### Étape 5 : Formulaire de projets personnels
+[x] ### Étape 5 : Formulaire de projets personnels
 
 ```
 Créer le formulaire de gestion des projets personnels :
@@ -107,7 +107,7 @@ Créer le formulaire de gestion des projets personnels :
 10. Configurer la visibilité et le tri comme pour les expériences
 ```
 
-[x ] ### Étape 6 : Formulaire de formations et diplômes
+[x] ### Étape 6 : Formulaire de formations et diplômes
 
 ```
 Développer le formulaire de formations et diplômes :
@@ -123,7 +123,7 @@ Développer le formulaire de formations et diplômes :
 10. Configurer le tri chronologique automatique
 ```
 
-[x ] ### Étape 7 : Interface principale et navigation
+[x] ### Étape 7 : Interface principale et navigation
 
 ```
 Intégrer tous les formulaires dans une interface utilisateur cohérente :
@@ -139,7 +139,7 @@ Intégrer tous les formulaires dans une interface utilisateur cohérente :
 10. Implémenter l'exportation des données au format JSON
 ```
 
-[x ] ### Étape 8 : Optimisation et finalisation
+[x] ### Étape 8 : Optimisation et finalisation
 
 ```
 Finaliser et optimiser les formulaires :
@@ -163,7 +163,7 @@ Je vais adapter la section "Interface de gestion des compétences" en fonction d
 
 ## Interface de gestion des compétences - Découpe détaillée
 
-[x ] ### Étape 1 : Structure de base et modèle de données
+[x] ### Étape 1 : Structure de base et modèle de données
 
 ```
 Créer la structure de base pour la gestion des compétences techniques :
@@ -175,7 +175,7 @@ Créer la structure de base pour la gestion des compétences techniques :
 6. Développer la structure de la page de gestion des compétences dans src/sections/cv/skills/index.jsx
 ```
 
-[x ] ### Étape 2 : Interface de liste des compétences
+[x] ### Étape 2 : Interface de liste des compétences
 
 ```
 Développer l'interface de liste des compétences :
@@ -191,7 +191,7 @@ Développer l'interface de liste des compétences :
 10. Créer un état vide avec src/components/empty-content/empty-content.jsx
 ```
 
-[x ] ### Étape 3 : Composant d'ajout et d'édition de compétence
+[x] ### Étape 3 : Composant d'ajout et d'édition de compétence
 
 ```
 Créer le formulaire d'ajout et d'édition des compétences :
@@ -490,7 +490,7 @@ Je vais adapter l'étape "Importation et validation JSON" en tenant compte de l'
 
 ## Importation et validation JSON - Découpe détaillée
 
-[x ] ### Étape 1 : Conception du modèle et des types de données
+[x] ### Étape 1 : Conception du modèle et des types de données
 
 ```
 Créer la structure de données pour les offres d'emploi au format JSON :
