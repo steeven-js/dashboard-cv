@@ -9,13 +9,13 @@ Semaine 1:
 [x] [XXX--] Création des tables et relations
 
 Semaine 2:
-[x] [XXXXX] Authentification et profil utilisateur
-[x] [XXXXX] Formulaires de saisie des informations
-[ ] [XXXXX] Interface de gestion des compétences
-[ ] [XXX--] Interface de gestion des expériences
+[x] [XXXXX] [Authentification et profil utilisateur](#semaine-2)
+[x] [XXXXX] [Formulaires de saisie des informations](#formulaires-de-saisie-des-informations---découpe-adaptée)
+[ ] [XXXXX] [Interface de gestion des compétences](#interface-de-gestion-des-compétences---découpe-détaillée)
+[ ] [XXX--] [Interface de gestion des expériences](#interface-de-gestion-des-expériences---découpe-détaillée)
 
 Semaine 3:
-[ ] [XXXXX] Importation et validation JSON
+[ ] [XXXXX] [Importation et validation JSON](#importation-et-validation-json---découpe-détaillée)
 [ ] [XXXXX] Algorithme de correspondance
 [ ] [XXXXX] Génération de CV basique
 [ ] [XX---] Interface de prévisualisation
