@@ -53,6 +53,7 @@ export const paths = {
     root: ROOTS_DASHBOARD,
     personalInfo: `${ROOTS_DASHBOARD}/personal-info`,
     technicalSkills: `${ROOTS_DASHBOARD}/technical-skills`,
+    skillVisualization: `${ROOTS_DASHBOARD}/skill-visualization`,
     professionalExperience: `${ROOTS_DASHBOARD}/professional-experience`,
     personalProjects: `${ROOTS_DASHBOARD}/personal-projects`,
     education: `${ROOTS_DASHBOARD}/education`,

@@ -14,6 +14,7 @@ import { usePathname } from '../hooks';
 
 const CVBuilderPage = lazy(() => import('src/sections/cv/cv-builder'));
 const TechnicalSkillsPage = lazy(() => import('src/sections/cv/skills'));
+const SkillVisualizationDemo = lazy(() => import('src/sections/cv/skills/skill-visualization-demo'));
 
 // ----------------------------------------------------------------------
 
@@ -26,22 +27,26 @@ function SuspenseOutlet() {
   );
 }
 
-const dashboardLayout = () => (
-  <DashboardLayout>
-    <SuspenseOutlet />
-  </DashboardLayout>
-);
+// Définir DashboardLayoutWrapper comme un composant React fonctionnel
+function DashboardLayoutWrapper() {
+  return (
+    <DashboardLayout>
+      <SuspenseOutlet />
+    </DashboardLayout>
+  );
+}
 
 // ----------------------------------------------------------------------
 
 export const dashboardRoutes = [
   {
     path: 'dashboard',
-    element: CONFIG.auth.skip ? dashboardLayout() : <AuthGuard>{dashboardLayout()}</AuthGuard>,
+    element: CONFIG.auth.skip ? <DashboardLayoutWrapper /> : <AuthGuard><DashboardLayoutWrapper /></AuthGuard>,
     children: [
       { element: <CVBuilderPage />, index: true },
       { path: 'personal-info', element: <CVBuilderPage /> },
       { path: 'technical-skills', element: <TechnicalSkillsPage /> },
+      { path: 'skill-visualization', element: <SkillVisualizationDemo /> },
       { path: 'professional-experience', element: <CVBuilderPage /> },
       { path: 'personal-projects', element: <CVBuilderPage /> },
       { path: 'education', element: <CVBuilderPage /> },

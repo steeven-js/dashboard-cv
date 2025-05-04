@@ -30,6 +30,11 @@ export default defineConfig({
       },
     ],
   },
+  define: {
+    process: JSON.stringify({
+      env: {},
+    }),
+  },
   server: { port: PORT, host: true },
   preview: { port: PORT, host: true },
 });

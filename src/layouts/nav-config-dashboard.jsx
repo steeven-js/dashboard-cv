@@ -57,6 +57,11 @@ export const navData = [
         icon: ICONS.parameter 
       },
       { 
+        title: 'Visualisation des Compétences', 
+        path: paths.dashboard.skillVisualization, 
+        icon: ICONS.analytics 
+      },
+      { 
         title: 'Expériences Professionnelles', 
         path: paths.dashboard.professionalExperience, 
         icon: ICONS.job 
@@ -90,6 +95,11 @@ export const navConfig = [
         title: 'Compétences techniques',
         path: paths.cv.skills,
         icon: 'solar:star-bold',
+      },
+      {
+        title: 'Visualisation des compétences',
+        path: paths.dashboard.skillVisualization,
+        icon: 'solar:chart-bold',
       },
       {
         title: 'Expérience professionnelle',
