@@ -67,7 +67,7 @@ Semaine 1:
 Semaine 2:
 [x] [XXXXX] Authentification et profil utilisateur
 [x] [XXXXX] Formulaires de saisie des informations
-[ ] [XXXXX] Interface de gestion des compétences
+[x] [XXXXX] Interface de gestion des compétences
 [ ] [XXX--] Interface de gestion des expériences
 
 Semaine 3:
@@ -263,7 +263,7 @@ Créer le formulaire d'ajout et d'édition des compétences :
 10. Implémenter la validation en temps réel avec les schemas Zod
 ```
 
-[ ] ### Étape 4 : Visualisation du niveau de compétence
+[x] ### Étape 4 : Visualisation du niveau de compétence
 
 ```
 Créer une visualisation intuitive du niveau de compétence :
@@ -279,7 +279,7 @@ Créer une visualisation intuitive du niveau de compétence :
 10. Ajouter une option de comparaison entre le niveau actuel et le niveau requis pour une offre
 ```
 
-[ ] ### Étape 5 : Système de catégorisation des compétences
+[x] ### Étape 5 : Système de catégorisation des compétences
 
 ```
 Mettre en place un système de catégorisation flexible :
