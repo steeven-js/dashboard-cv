@@ -7,6 +7,14 @@ const ROOTS = {
 
 // ----------------------------------------------------------------------
 
+function path(root, sublink) {
+  return `${root}${sublink}`;
+}
+
+const ROOTS_DASHBOARD = '/dashboard';
+
+// ----------------------------------------------------------------------
+
 export const paths = {
   faqs: '/faqs',
   minimalStore: 'https://mui.com/store/items/minimal-dashboard/',
@@ -42,11 +50,21 @@ export const paths = {
   },
   // DASHBOARD
   dashboard: {
-    root: ROOTS.DASHBOARD,
-    personalInfo: `${ROOTS.DASHBOARD}/personal-info`,
-    technicalSkills: `${ROOTS.DASHBOARD}/technical-skills`,
-    professionalExperience: `${ROOTS.DASHBOARD}/professional-experience`,
-    personalProjects: `${ROOTS.DASHBOARD}/personal-projects`,
-    education: `${ROOTS.DASHBOARD}/education`,
+    root: ROOTS_DASHBOARD,
+    personalInfo: `${ROOTS_DASHBOARD}/personal-info`,
+    technicalSkills: `${ROOTS_DASHBOARD}/technical-skills`,
+    professionalExperience: `${ROOTS_DASHBOARD}/professional-experience`,
+    personalProjects: `${ROOTS_DASHBOARD}/personal-projects`,
+    education: `${ROOTS_DASHBOARD}/education`,
+  },
+  
+  // CV Builder
+  cv: {
+    root: path(ROOTS_DASHBOARD, '/cv'),
+    builder: path(ROOTS_DASHBOARD, '/cv/builder'),
+    skills: path(ROOTS_DASHBOARD, '/cv/skills'),
+    experience: path(ROOTS_DASHBOARD, '/cv/experience'),
+    education: path(ROOTS_DASHBOARD, '/cv/education'),
+    projects: path(ROOTS_DASHBOARD, '/cv/projects'),
   },
 };

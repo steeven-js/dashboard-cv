@@ -1,150 +1,173 @@
 import PropTypes from 'prop-types';
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
+import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
-import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
 import FormControl from '@mui/material/FormControl';
 import InputAdornment from '@mui/material/InputAdornment';
-
-import { SKILL_CATEGORIES } from 'src/data/skill-model';
 
 import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
 /**
- * Barre de filtres pour la gestion des compétences techniques
- * Permet de filtrer par catégorie et de rechercher par texte
- * 
- * @param {Object} props - Propriétés du composant
- * @param {Function} props.onFilterChange - Fonction appelée lors du changement de filtres
+ * Barre de filtrage pour les compétences techniques
  */
-export default function SkillsFilterBar({ onFilterChange }) {
+export default function SkillsFilterBar({ onFilterChange, categories = [] }) {
   const [category, setCategory] = useState('');
-  const [searchValue, setSearchValue] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   
-  // Gérer le changement de catégorie
+  // Options de filtre par catégorie
+  const categoryOptions = [
+    { value: '', label: 'Toutes les catégories' },
+    ...categories.map(cat => ({ value: cat, label: cat })),
+  ];
+  
+  // Mettre à jour les filtres quand ils changent
+  useEffect(() => {
+    onFilterChange(category, searchQuery);
+  }, [category, searchQuery, onFilterChange]);
+  
+  // Gestion des changements de catégorie
   const handleCategoryChange = useCallback((event) => {
-    const newCategory = event.target.value;
-    setCategory(newCategory);
-    onFilterChange(newCategory, searchValue);
-  }, [onFilterChange, searchValue]);
+    setCategory(event.target.value);
+  }, []);
   
-  // Gérer la recherche textuelle
+  // Gestion des changements de recherche
   const handleSearchChange = useCallback((event) => {
-    const newSearchValue = event.target.value;
-    setSearchValue(newSearchValue);
-    onFilterChange(category, newSearchValue);
-  }, [onFilterChange, category]);
-  
-  // Effacer la recherche
-  const handleClearSearch = useCallback(() => {
-    setSearchValue('');
-    onFilterChange(category, '');
-  }, [onFilterChange, category]);
+    setSearchQuery(event.target.value);
+  }, []);
   
   // Réinitialiser tous les filtres
   const handleResetFilters = useCallback(() => {
     setCategory('');
-    setSearchValue('');
-    onFilterChange('', '');
-  }, [onFilterChange]);
-
+    setSearchQuery('');
+  }, []);
+  
+  // Réinitialiser un filtre spécifique
+  const handleRemoveFilter = useCallback((filterType) => {
+    if (filterType === 'category') {
+      setCategory('');
+    } else if (filterType === 'search') {
+      setSearchQuery('');
+    }
+  }, []);
+  
+  // Vérifier si des filtres sont actifs
+  const hasActiveFilters = category || searchQuery;
+  
   return (
-    <Card sx={{ p: 2, mb: 3, boxShadow: (theme) => theme.customShadows.z8 }}>
-      <Stack 
-        direction={{ xs: 'column', sm: 'row' }}
-        alignItems={{ xs: 'flex-start', sm: 'center' }}
-        spacing={2}
-      >
-        {/* Filtre par catégorie */}
-        <FormControl sx={{ minWidth: 240 }}>
-          <InputLabel>Catégorie</InputLabel>
+    <Box sx={{ mb: 3 }}>
+      <Typography variant="h6" sx={{ mb: 2 }}>
+        Filtres
+      </Typography>
+      
+      <Stack spacing={2}>
+        <Stack 
+          direction={{ xs: 'column', sm: 'row' }} 
+          spacing={2}
+          alignItems={{ sm: 'center' }}
+        >
+          {/* Recherche */}
+          <TextField
+            fullWidth
+            value={searchQuery}
+            onChange={handleSearchChange}
+            placeholder="Rechercher par nom ou tag..."
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                </InputAdornment>
+              ),
+              endAdornment: searchQuery && (
+                <InputAdornment position="end">
+                  <Iconify
+                    icon="eva:close-fill"
+                    onClick={() => handleRemoveFilter('search')}
+                    sx={{ color: 'text.disabled', cursor: 'pointer' }}
+                  />
+                </InputAdornment>
+              ),
+            }}
+          />
           
-          <Select
-            value={category}
-            onChange={handleCategoryChange}
-            displayEmpty
-            label="Catégorie"
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 260 },
-              },
-            }}
-            sx={{ 
-              textTransform: 'capitalize',
-              '& .MuiOutlinedInput-notchedOutline': {
-                borderColor: (theme) => theme.palette.divider,
+          {/* Catégorie */}
+          <FormControl sx={{ minWidth: 240 }}>
+            <InputLabel>Catégorie</InputLabel>
+            <Select
+              value={category}
+              label="Catégorie"
+              onChange={handleCategoryChange}
+              endAdornment={
+                category && (
+                  <InputAdornment position="end">
+                    <Iconify
+                      icon="eva:close-fill"
+                      onClick={() => handleRemoveFilter('category')}
+                      sx={{ color: 'text.disabled', cursor: 'pointer', mr: 1 }}
+                    />
+                  </InputAdornment>
+                )
               }
-            }}
-          >
-            <MenuItem value="">Toutes les catégories</MenuItem>
-            
-            <Box sx={{ my: 1, borderBottom: '1px dashed #ddd' }} />
-            
-            {SKILL_CATEGORIES.map((option) => (
-              <MenuItem key={option.value} value={option.value} sx={{ textTransform: 'capitalize' }}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+            >
+              {categoryOptions.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Stack>
         
-        {/* Recherche par texte */}
-        <TextField
-          fullWidth
-          value={searchValue}
-          onChange={handleSearchChange}
-          placeholder="Rechercher une compétence..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-            endAdornment: (
-              <Stack direction="row" spacing={0.5}>
-                {searchValue && (
-                  <IconButton onClick={handleClearSearch}>
-                    <Iconify icon="eva:close-fill" />
-                  </IconButton>
-                )}
-              </Stack>
-            ),
-          }}
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              '& fieldset': {
-                borderColor: (theme) => theme.palette.divider,
-              },
-            },
-          }}
-        />
-        
-        {/* Bouton réinitialiser les filtres */}
-        {(category || searchValue) && (
-          <IconButton 
-            onClick={handleResetFilters}
-            sx={{
-              p: 1,
-              bgcolor: 'action.selected',
-              '&:hover': { bgcolor: 'action.hover' },
-            }}
-          >
-            <Iconify icon="solar:restart-bold" />
-          </IconButton>
+        {/* Affichage des filtres actifs */}
+        {hasActiveFilters && (
+          <Stack direction="row" flexWrap="wrap" spacing={1}>
+            <Typography variant="body2" sx={{ mr: 1, my: 0.5 }}>
+              Filtres actifs:
+            </Typography>
+            
+            {category && (
+              <Chip
+                label={`Catégorie: ${category}`}
+                size="small"
+                onDelete={() => handleRemoveFilter('category')}
+                color="primary"
+                variant="soft"
+              />
+            )}
+            
+            {searchQuery && (
+              <Chip
+                label={`Recherche: ${searchQuery}`}
+                size="small"
+                onDelete={() => handleRemoveFilter('search')}
+                color="primary"
+                variant="soft"
+              />
+            )}
+            
+            <Chip
+              label="Tout réinitialiser"
+              size="small"
+              onClick={handleResetFilters}
+              color="error"
+              variant="soft"
+            />
+          </Stack>
         )}
       </Stack>
-    </Card>
+    </Box>
   );
 }
 
 SkillsFilterBar.propTypes = {
   onFilterChange: PropTypes.func.isRequired,
+  categories: PropTypes.arrayOf(PropTypes.string),
 }; 

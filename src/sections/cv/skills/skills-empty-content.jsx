@@ -1,8 +1,7 @@
 import PropTypes from 'prop-types';
 
 import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import Stack from '@mui/material/Stack';
+import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 
@@ -11,58 +10,49 @@ import { Iconify } from 'src/components/iconify';
 // ----------------------------------------------------------------------
 
 /**
- * Contenu vide pour la section des compétences techniques
- * Affiché lorsqu'aucune compétence n'est disponible
- * 
- * @param {Object} props - Propriétés du composant
- * @param {Function} props.onAdd - Fonction appelée pour ajouter une compétence
+ * Composant affiché lorsqu'aucune compétence n'existe
  */
 export default function SkillsEmptyContent({ onAdd }) {
   return (
-    <Card
+    <Paper
       sx={{
-        p: 5,
-        mb: 3,
         textAlign: 'center',
+        p: 5,
         borderStyle: 'dashed',
         borderColor: 'divider',
         bgcolor: 'background.neutral',
       }}
     >
-      <Stack spacing={3} alignItems="center" justifyContent="center">
+      <Box sx={{ mb: 3 }}>
         <Box
           component="img"
-          alt="empty content"
-          src="/public/assets/illustrations/characters/character-study.webp"
-          sx={{ height: 160, mb: 3 }}
+          alt="État vide"
+          src="/assets/illustrations/illustration_empty_content.svg"
+          sx={{ height: 160, mx: 'auto' }}
         />
+      </Box>
 
-        <Typography variant="h6" gutterBottom>
-          Aucune compétence technique
-        </Typography>
+      <Typography variant="h6" sx={{ mb: 1 }}>
+        Aucune compétence technique
+      </Typography>
 
-        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          Vous n&apos;avez encore ajouté aucune compétence technique à votre profil.
-          <br />
-          Les compétences techniques sont essentielles pour mettre en valeur votre expertise
-          <br />
-          et améliorer la correspondance avec les offres d&apos;emploi.
-        </Typography>
+      <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3 }}>
+        Vous n&apos;avez pas encore ajouté de compétences techniques à votre CV.
+        <br />Commencez par ajouter vos compétences pour les faire apparaître ici.
+      </Typography>
 
-        <Button
-          variant="contained"
-          startIcon={<Iconify icon="eva:plus-fill" />}
-          onClick={onAdd}
-          size="large"
-          sx={{ px: 3, py: 1 }}
-        >
-          Ajouter ma première compétence
-        </Button>
-      </Stack>
-    </Card>
+      <Button
+        color="primary"
+        variant="contained"
+        startIcon={<Iconify icon="eva:plus-fill" />}
+        onClick={onAdd}
+      >
+        Ajouter une compétence
+      </Button>
+    </Paper>
   );
 }
 
 SkillsEmptyContent.propTypes = {
-  onAdd: PropTypes.func.isRequired,
+  onAdd: PropTypes.func,
 }; 

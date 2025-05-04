@@ -32,6 +32,8 @@ const dashboardLayout = () => (
   </DashboardLayout>
 );
 
+// ----------------------------------------------------------------------
+
 export const dashboardRoutes = [
   {
     path: 'dashboard',

@@ -74,3 +74,38 @@ export const navData = [
     ],
   },
 ];
+
+export const navConfig = [
+  {
+    title: 'CV Builder',
+    path: paths.cv.root,
+    icon: 'solar:document-text-bold',
+    items: [
+      {
+        title: 'Vue densemble',
+        path: paths.cv.builder,
+        icon: 'solar:home-2-bold',
+      },
+      {
+        title: 'Compétences techniques',
+        path: paths.cv.skills,
+        icon: 'solar:star-bold',
+      },
+      {
+        title: 'Expérience professionnelle',
+        path: paths.cv.experience,
+        icon: 'solar:case-minimalistic-bold',
+      },
+      {
+        title: 'Formation',
+        path: paths.cv.education,
+        icon: 'solar:graduation-cap-bold',
+      },
+      {
+        title: 'Projets personnels',
+        path: paths.cv.projects,
+        icon: 'solar:book-bookmark-bold',
+      },
+    ],
+  },
+];
