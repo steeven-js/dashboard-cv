@@ -29,8 +29,9 @@ import { getTechnicalSkills, saveTechnicalSkill, deleteTechnicalSkill, updateTec
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
-import { Form, Field } from 'src/components/hook-form';
+import { Field } from 'src/components/hook-form/fields';
 import { varFade } from 'src/components/animate/variants';
+import { Form } from 'src/components/hook-form/form-provider';
 import { CustomPopover } from 'src/components/custom-popover';
 
 import SkillItem from './skill-item';
@@ -607,7 +608,7 @@ export default function TechnicalSkillsForm() {
                 
                 <DialogContent dividers>
                   <Stack spacing={3} sx={{ pt: 1 }}>
-                    <Field.TextField
+                    <Field.Text
                       name="name"
                       label="Nom de la compétence"
                       required

@@ -1,6 +1,6 @@
 import * as z from 'zod';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm , FormProvider } from 'react-hook-form';
 import { useMemo, useState, useEffect, useCallback } from 'react';
 import { isValidPhoneNumber } from 'react-phone-number-input/input';
 
@@ -8,7 +8,6 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Alert from '@mui/material/Alert';
-import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import AlertTitle from '@mui/material/AlertTitle';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -22,6 +21,8 @@ import { getPersonalInfo, savePersonalInfo } from 'src/services/cv-service';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
+import { Field } from 'src/components/hook-form/fields';
+import { Form } from 'src/components/hook-form/form-provider';
 import { schemaHelper } from 'src/components/hook-form/schema-helper';
 
 // ----------------------------------------------------------------------
@@ -132,7 +133,6 @@ export default function PersonalInfoForm() {
     reset,
     watch,
     getValues,
-    register,
   } = methods;
 
   // Charger les données au chargement du composant
@@ -284,8 +284,8 @@ export default function PersonalInfoForm() {
   }
 
   return (
-    <FormProvider {...methods}>
-      <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate autoComplete="off">
+    <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
+      <Box noValidate autoComplete="off">
         <Grid container spacing={3}>
           <Grid item xs={12}>
             {/* Section Photo de profil - Simplifiée */}
@@ -332,25 +332,23 @@ export default function PersonalInfoForm() {
               <Box sx={{ pt: 1 }}>
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6}>
-                    {/* Remplacer Field.TextField par TextField standard */}
-                    <TextField
+                    {/* Remplacer Field.TextField par Field.Text */}
+                    <Field.Text
                       name="firstName"
                       label="Prénom"
                       fullWidth
                       required
-                      {...register('firstName')}
                       error={!!errors.firstName}
                       helperText={errors.firstName?.message}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    {/* Remplacer Field.TextField par TextField standard */}
-                    <TextField
+                    {/* Remplacer Field.TextField par Field.Text */}
+                    <Field.Text
                       name="lastName"
                       label="Nom"
                       fullWidth
                       required
-                      {...register('lastName')}
                       error={!!errors.lastName}
                       helperText={errors.lastName?.message}
                     />
@@ -364,7 +362,7 @@ export default function PersonalInfoForm() {
               <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
                 Titre professionnel
               </Typography>
-              <TextField
+              <Field.Text
                 name="professionalTitle"
                 label="Titre professionnel"
                 placeholder="Ex: Développeur Full-Stack React / Node.js"
@@ -372,7 +370,6 @@ export default function PersonalInfoForm() {
                 required
                 aria-required="true"
                 aria-describedby="title-help"
-                {...methods.register('professionalTitle')}
                 error={!!errors.professionalTitle}
                 helperText={errors.professionalTitle?.message}
               />
@@ -386,7 +383,7 @@ export default function PersonalInfoForm() {
               <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
                 Résumé professionnel
               </Typography>
-              <TextField
+              <Field.Text
                 name="summary"
                 label="Description"
                 placeholder="Présentez-vous en quelques phrases..."
@@ -395,7 +392,6 @@ export default function PersonalInfoForm() {
                 rows={4}
                 inputProps={{ maxLength: 500 }}
                 aria-describedby="summary-counter"
-                {...methods.register('summary')}
                 error={!!errors.summary}
                 helperText={errors.summary?.message}
               />
@@ -421,7 +417,7 @@ export default function PersonalInfoForm() {
               <Box sx={{ pt: 1 }}>
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6}>
-                    <TextField
+                    <Field.Text
                       name="email"
                       label="Email"
                       fullWidth
@@ -434,18 +430,16 @@ export default function PersonalInfoForm() {
                         ),
                       }}
                       aria-required="true"
-                      {...methods.register('email')}
                       error={!!errors.email}
                       helperText={errors.email?.message}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <TextField
+                    <Field.Text
                       name="phone"
                       label="Téléphone"
                       fullWidth
                       aria-describedby="phone-hint"
-                      {...methods.register('phone')}
                       error={!!errors.phone}
                       helperText={errors.phone?.message || (
                         <Typography id="phone-hint" variant="caption" sx={{ color: 'text.secondary' }}>
@@ -455,7 +449,7 @@ export default function PersonalInfoForm() {
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <TextField
+                    <Field.Text
                       name="linkedin"
                       label="LinkedIn"
                       fullWidth
@@ -468,7 +462,6 @@ export default function PersonalInfoForm() {
                         ),
                       }}
                       aria-describedby="linkedin-hint"
-                      {...methods.register('linkedin')}
                       error={!!errors.linkedin}
                       helperText={errors.linkedin?.message || (
                         <Typography id="linkedin-hint" variant="caption" sx={{ color: 'text.secondary' }}>
@@ -478,7 +471,7 @@ export default function PersonalInfoForm() {
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <TextField
+                    <Field.Text
                       name="website"
                       label="Site Web"
                       fullWidth
@@ -490,13 +483,12 @@ export default function PersonalInfoForm() {
                           </InputAdornment>
                         ),
                       }}
-                      {...methods.register('website')}
                       error={!!errors.website}
                       helperText={errors.website?.message}
                     />
                   </Grid>
                   <Grid item xs={12}>
-                    <TextField
+                    <Field.Text
                       name="address"
                       label="Adresse"
                       fullWidth
@@ -509,7 +501,6 @@ export default function PersonalInfoForm() {
                           </InputAdornment>
                         ),
                       }}
-                      {...methods.register('address')}
                       error={!!errors.address}
                       helperText={errors.address?.message || (
                         <Typography id="address-hint" variant="caption" sx={{ color: 'text.secondary' }}>
@@ -566,6 +557,6 @@ export default function PersonalInfoForm() {
           </Grid>
         </Grid>
       </Box>
-    </FormProvider>
+    </Form>
   );
 } 

@@ -6,13 +6,7 @@ import { supabase } from 'src/lib/supabase';
  * Service pour gérer les données du CV dans Supabase
  */
 
-// Tables à utiliser dans Supabase
-// Commenter les variables non utilisées
-// const CV_TABLE = 'cv';
-// const TECH_SKILLS_TABLE = 'technical_skills';
-// const EXPERIENCES_TABLE = 'experiences';
-// const PERSONAL_PROJECTS_TABLE = 'personal_projects';
-// const EDUCATION_TABLE = 'education';
+// Tables à utiliser dans Supabase - suppression des variables commentées
 // Bucket de stockage pour les avatars
 const STORAGE_BUCKET = 'dashboard-cv';
 
