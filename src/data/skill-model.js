@@ -100,4 +100,181 @@ export const getFilteredSkillSuggestions = (input, category = null) => {
   return sourceSuggestions
     .filter(skill => skill.toLowerCase().includes(searchTerm))
     .slice(0, 10);
+};
+
+/**
+ * Tags prédéfinis par catégorie pour faciliter le matching avec les offres d'emploi
+ */
+export const PREDEFINED_TAGS = {
+  'Front-end': [
+    'UI', 'Interface utilisateur', 'UX', 'Responsive', 'Web', 'SPA', 'Client-side', 
+    'Frontend', 'JavaScript', 'CSS', 'HTML', 'Composants', 'Rendu'
+  ],
+  'Back-end': [
+    'API', 'Serveur', 'Server-side', 'Backend', 'Microservices', 'Authentification', 
+    'Base de données', 'Performance', 'Sécurité', 'REST', 'GraphQL'
+  ],
+  'Mobile': [
+    'iOS', 'Android', 'Mobile', 'App', 'Tablette', 'Responsive', 'Native', 
+    'Cross-platform', 'Hybride', 'Offline', 'Push Notifications'
+  ],
+  'Database': [
+    'SQL', 'NoSQL', 'DBMS', 'Modélisation', 'Indexation', 'Requêtes', 'Stockage', 
+    'Cache', 'Transactions', 'Migration', 'Optimisation'
+  ],
+  'DevOps': [
+    'CI/CD', 'Pipeline', 'Automatisation', 'Déploiement', 'Container', 'Infrastructure', 
+    'Cloud', 'Monitoring', 'Logging', 'Scaling', 'Sécurité'
+  ],
+  'Design': [
+    'UI/UX', 'Wireframe', 'Prototype', 'Maquette', 'Layout', 'Design system', 
+    'Accessibilité', 'Usabilité', 'Responsive', 'Mobile-first'
+  ],
+  'Tools': [
+    'Version control', 'Automation', 'Testing', 'Build', 'Package', 'Dependency', 
+    'Task runner', 'Bundler', 'Linter', 'Debug'
+  ],
+  'Other': [
+    'Agile', 'Scrum', 'Management', 'Documentation', 'Testing', 'QA', 
+    'Analytics', 'SEO', 'Accessibilité', 'Performance'
+  ]
+};
+
+/**
+ * Obtient les tags prédéfinis pour une catégorie spécifique
+ * @param {string} category - Catégorie de compétence
+ * @returns {string[]} - Liste des tags prédéfinis
+ */
+export const getPredefinedTagsByCategory = (category) => PREDEFINED_TAGS[category] || [];
+
+/**
+ * Analyse les tags les plus populaires parmi toutes les compétences
+ * @param {Array} skills - Liste des compétences avec leurs tags
+ * @returns {Array} - Tags populaires avec leur compte d'utilisation
+ */
+export const analyzePopularTags = (skills = []) => {
+  // Compteur de tags
+  const tagCounter = {};
+  
+  // Parcourir toutes les compétences et compter les tags
+  skills.forEach(skill => {
+    if (skill.tags && Array.isArray(skill.tags)) {
+      skill.tags.forEach(tag => {
+        tagCounter[tag] = (tagCounter[tag] || 0) + 1;
+      });
+    }
+  });
+  
+  // Convertir en tableau et trier par popularité
+  const popularTags = Object.entries(tagCounter)
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count);
+  
+  return popularTags;
+};
+
+/**
+ * Calcule la correspondance entre une offre d'emploi et les compétences utilisateur
+ * @param {Object} jobOffer - Objet contenant les tags et compétences de l'offre
+ * @param {Array} userSkills - Compétences de l'utilisateur
+ * @returns {Object} - Score de correspondance et analyse détaillée
+ */
+export const calculateTagMatching = (jobOffer, userSkills = []) => {
+  // Extraire tous les tags des compétences utilisateur
+  const userTags = [];
+  userSkills.forEach(skill => {
+    // Ajouter le nom de la compétence comme tag
+    userTags.push(skill.name.toLowerCase());
+    
+    // Ajouter tous les tags associés
+    if (skill.tags && Array.isArray(skill.tags)) {
+      skill.tags.forEach(tag => userTags.push(tag.toLowerCase()));
+    }
+  });
+  
+  // Extraire les tags de l'offre
+  const jobTags = [];
+  if (jobOffer.requiredSkills) {
+    jobOffer.requiredSkills.forEach(skill => {
+      jobTags.push(skill.toLowerCase());
+    });
+  }
+  
+  if (jobOffer.tags && Array.isArray(jobOffer.tags)) {
+    jobOffer.tags.forEach(tag => jobTags.push(tag.toLowerCase()));
+  }
+  
+  // Compter les correspondances
+  const matches = [];
+  const missing = [];
+  
+  jobTags.forEach(tag => {
+    const isMatch = userTags.some(userTag => 
+      userTag === tag || 
+      userTag.includes(tag) || 
+      tag.includes(userTag)
+    );
+    
+    if (isMatch) {
+      matches.push(tag);
+    } else {
+      missing.push(tag);
+    }
+  });
+  
+  // Calculer le score
+  const matchScore = jobTags.length > 0 ? (matches.length / jobTags.length) * 100 : 0;
+  
+  return {
+    score: Math.round(matchScore),
+    matches,
+    missing,
+    totalTags: jobTags.length
+  };
+};
+
+/**
+ * Suggère des tags pertinents basés sur le nom de la compétence et sa catégorie
+ * @param {string} skillName - Nom de la compétence
+ * @param {string} category - Catégorie de la compétence
+ * @returns {Array} - Tags suggérés
+ */
+export const suggestRelevantTags = (skillName, category) => {
+  const suggestions = [];
+  
+  // Ajouter les tags prédéfinis de la catégorie
+  if (category && PREDEFINED_TAGS[category]) {
+    suggestions.push(...PREDEFINED_TAGS[category].slice(0, 5));
+  }
+  
+  // Analyser le nom de la compétence pour trouver des mots-clés connexes
+  const skillLower = skillName.toLowerCase();
+  
+  // Pour les frameworks frontend
+  if (skillLower.includes('react')) {
+    suggestions.push('JavaScript', 'SPA', 'Composants', 'Frontend', 'UI');
+  } else if (skillLower.includes('vue')) {
+    suggestions.push('JavaScript', 'SPA', 'Frontend', 'Composants');
+  } else if (skillLower.includes('angular')) {
+    suggestions.push('TypeScript', 'SPA', 'Frontend', 'Composants');
+  }
+  
+  // Pour les langages de programmation
+  if (skillLower.includes('python')) {
+    suggestions.push('Scripting', 'Backend', 'Data Science', 'Automation');
+  } else if (skillLower.includes('java')) {
+    suggestions.push('Backend', 'Enterprise', 'JVM', 'OOP');
+  } else if (skillLower.includes('javascript') || skillLower.includes('js')) {
+    suggestions.push('Frontend', 'Web', 'Scripting', 'Browser');
+  }
+  
+  // Pour les bases de données
+  if (skillLower.includes('sql')) {
+    suggestions.push('Database', 'Queries', 'RDBMS', 'Data');
+  } else if (skillLower.includes('mongo')) {
+    suggestions.push('NoSQL', 'Database', 'Document DB', 'Data');
+  }
+  
+  // Retourner un tableau de suggestions uniques
+  return [...new Set(suggestions)];
 }; 

@@ -1,11 +1,12 @@
 import * as z from 'zod';
-import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useForm } from 'react-hook-form';
+import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
+import Stack from '@mui/material/Stack';
 import Dialog from '@mui/material/Dialog';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
@@ -14,65 +15,19 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import FormHelperText from '@mui/material/FormHelperText';
+import InputAdornment from '@mui/material/InputAdornment';
 import DialogContentText from '@mui/material/DialogContentText';
 
+// Importation des modèles de compétences et tags
+import { 
+  SKILL_CATEGORIES, 
+  CATEGORIZED_SKILLS, 
+  suggestRelevantTags,
+  getPredefinedTagsByCategory
+} from 'src/data/skill-model';
+
+import { Iconify } from 'src/components/iconify';
 import { Form, RHFSwitch, RHFSelect, RHFSlider, RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
-
-// ----------------------------------------------------------------------
-
-// Catégories de compétences disponibles
-const SKILL_CATEGORIES = [
-  { value: 'Front-end', label: 'Front-end' },
-  { value: 'Back-end', label: 'Back-end' },
-  { value: 'Mobile', label: 'Mobile' },
-  { value: 'DevOps', label: 'DevOps' },
-  { value: 'Database', label: 'Base de données' },
-  { value: 'Design', label: 'Design' },
-  { value: 'Tools', label: 'Outils' },
-  { value: 'Other', label: 'Autre' },
-];
-
-// Suggestions de compétences par catégorie
-const CATEGORIZED_SKILLS = {
-  'Front-end': [
-    'React', 'Vue.js', 'Angular', 'Svelte', 'Next.js', 'HTML', 'CSS', 'JavaScript', 'TypeScript',
-    'Redux', 'Webpack', 'Vite', 'jQuery', 'Bootstrap', 'Tailwind CSS', 'Material UI', 'Sass',
-    'Emotion', 'Styled Components', 'React Router', 'SWR', 'React Query', 'MobX', 'Remix'
-  ],
-  'Back-end': [
-    'Node.js', 'Express.js', 'PHP', 'Laravel', 'Ruby on Rails', 'Django', 'Flask', 'ASP.NET',
-    'Spring Boot', 'Java', 'Python', 'Go', 'Rust', 'C#', 'C++', 'GraphQL', 'REST', 'NestJS',
-    'FastAPI', 'Strapi', 'Symfony', 'Hapi.js', 'Koa.js', 'Apollo Server'
-  ],
-  'Mobile': [
-    'React Native', 'Flutter', 'Swift', 'Kotlin', 'Ionic', 'Expo', 'Android SDK', 'iOS SDK',
-    'SwiftUI', 'Xamarin', 'Cordova', 'Capacitor', 'Jetpack Compose', 'Mobile First Design'
-  ],
-  'Database': [
-    'MySQL', 'PostgreSQL', 'MongoDB', 'SQLite', 'Firebase', 'Redis', 'Elasticsearch', 'Supabase',
-    'MariaDB', 'Oracle', 'SQL Server', 'DynamoDB', 'Cassandra', 'Neo4j', 'CouchDB', 'Firestore'
-  ],
-  'DevOps': [
-    'Docker', 'Kubernetes', 'AWS', 'Azure', 'Google Cloud', 'Jenkins', 'GitHub Actions', 'Terraform',
-    'Ansible', 'Nginx', 'Prometheus', 'Grafana', 'Linux', 'Bash', 'CI/CD', 'GitLab CI',
-    'CircleCI', 'Travis CI', 'Pulumi', 'ArgoCD', 'Heroku', 'Netlify', 'Vercel'
-  ],
-  'Design': [
-    'Figma', 'Adobe XD', 'Sketch', 'Photoshop', 'Illustrator', 'InVision', 'UX Research',
-    'UI Design', 'Wireframing', 'Prototyping', 'User Testing', 'Accessibility', 'Design Systems'
-  ],
-  'Tools': [
-    'Git', 'GitHub', 'GitLab', 'Bitbucket', 'JIRA', 'Confluence', 'Notion', 'Trello',
-    'Slack', 'VS Code', 'IntelliJ IDEA', 'WebStorm', 'Postman', 'Insomnia', 'npm', 'yarn', 'pnpm'
-  ],
-  'Other': [
-    'Agile', 'Scrum', 'Kanban', 'SEO', 'Analytics', 'Documentation', 'Testing', 'Jest',
-    'Cypress', 'Selenium', 'WebdriverIO', 'Mocha', 'Chai', 'Sinon', 'TDD', 'BDD'
-  ]
-};
-
-// Liste de toutes les suggestions de tags (fusion de toutes les catégories)
-const ALL_TAG_SUGGESTIONS = Object.values(CATEGORIZED_SKILLS).flat();
 
 // ----------------------------------------------------------------------
 
@@ -103,6 +58,9 @@ const defaultValues = {
 export default function SkillDialog({ skill, open, onClose, onSubmit }) {
   const isEdit = !!skill;
   
+  // État pour les suggestions intelligentes de tags
+  const [suggestedTags, setSuggestedTags] = useState([]);
+  
   // Configuration du formulaire avec React Hook Form et Zod
   const methods = useForm({
     resolver: zodResolver(SkillSchema),
@@ -112,12 +70,15 @@ export default function SkillDialog({ skill, open, onClose, onSubmit }) {
   const {
     reset,
     watch,
+    setValue,
     handleSubmit,
-    formState: { isSubmitting, isDirty },
+    formState: { isSubmitting },
   } = methods;
   
-  // Récupérer la catégorie actuelle pour les suggestions de tags
+  // Récupérer les valeurs actuelles pour les suggestions de tags
   const currentCategory = watch('category');
+  const currentName = watch('name');
+  const currentTags = useMemo(() => watch('tags') || [], [watch]);
   
   // Réinitialiser le formulaire lorsque le dialogue s'ouvre ou la compétence change
   useEffect(() => {
@@ -139,6 +100,18 @@ export default function SkillDialog({ skill, open, onClose, onSubmit }) {
       }
     }
   }, [open, skill, reset]);
+
+  // Générer des suggestions de tags intelligentes en fonction du nom et de la catégorie
+  useEffect(() => {
+    if (currentName && currentName.trim().length > 0) {
+      const smartSuggestions = suggestRelevantTags(currentName, currentCategory);
+      // Filtrer les tags déjà sélectionnés
+      const filteredSuggestions = smartSuggestions.filter(tag => !currentTags.includes(tag));
+      setSuggestedTags(filteredSuggestions);
+    } else {
+      setSuggestedTags([]);
+    }
+  }, [currentName, currentCategory, currentTags]);
   
   // Gérer la soumission du formulaire
   const handleFormSubmit = async (data) => {
@@ -153,8 +126,20 @@ export default function SkillDialog({ skill, open, onClose, onSubmit }) {
   
   // Obtenir les suggestions de tags en fonction de la catégorie sélectionnée
   const getTagSuggestions = () => {
-    if (!currentCategory) return ALL_TAG_SUGGESTIONS;
-    return CATEGORIZED_SKILLS[currentCategory] || [];
+    if (!currentCategory) {
+      // Si aucune catégorie sélectionnée, retourner toutes les suggestions
+      return Object.values(CATEGORIZED_SKILLS).flat();
+    }
+    return [...CATEGORIZED_SKILLS[currentCategory] || [], ...getPredefinedTagsByCategory(currentCategory)];
+  };
+
+  // Ajouter un tag suggéré à la liste des tags
+  const handleAddSuggestedTag = (tag) => {
+    if (!currentTags.includes(tag)) {
+      setValue('tags', [...currentTags, tag], { shouldValidate: true });
+      // Mettre à jour les suggestions
+      setSuggestedTags(prevSuggestions => prevSuggestions.filter(t => t !== tag));
+    }
   };
   
   return (
@@ -222,49 +207,81 @@ export default function SkillDialog({ skill, open, onClose, onSubmit }) {
               name="yearsExperience"
               label="Années d'expérience"
               type="number"
-              InputProps={{ inputProps: { min: 0, step: 0.5 } }}
+              InputProps={{ 
+                inputProps: { min: 0, step: 0.5 },
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <Box component="span" sx={{ color: 'text.secondary', typography: 'body2' }}>
+                      an(s)
+                    </Box>
+                  </InputAdornment>
+                ),
+              }}
             />
             
-            <RHFAutocomplete
-              name="tags"
-              label="Tags associés"
-              multiple
-              freeSolo
-              options={getTagSuggestions()}
-              ChipProps={{ size: 'small' }}
-              renderTags={(selected, getTagProps) =>
-                selected.map((option, index) => (
-                  <Chip
-                    {...getTagProps({ index })}
-                    key={option}
-                    label={option}
-                    size="small"
-                    variant="soft"
-                    color="primary"
-                  />
-                ))
-              }
-            />
+            {/* Système de gestion des tags amélioré */}
+            <Box>
+              <RHFAutocomplete
+                name="tags"
+                label="Tags associés"
+                multiple
+                freeSolo
+                options={getTagSuggestions()}
+                helperText="Ajoutez des tags pour faciliter le matching avec les offres d'emploi"
+                ChipProps={{ size: 'small' }}
+                renderTags={(selected, getTagProps) =>
+                  selected.map((option, index) => (
+                    <Chip
+                      {...getTagProps({ index })}
+                      key={option}
+                      label={option}
+                      size="small"
+                      variant="soft"
+                      color="primary"
+                    />
+                  ))
+                }
+              />
+              
+              {/* Affichage des suggestions intelligentes */}
+              {suggestedTags.length > 0 && (
+                <Box sx={{ mt: 1 }}>
+                  <FormHelperText>
+                    Tags suggérés pour cette compétence:
+                  </FormHelperText>
+                  <Stack direction="row" flexWrap="wrap" spacing={0.5} sx={{ mt: 0.5 }}>
+                    {suggestedTags.slice(0, 6).map((tag, index) => (
+                      <Chip
+                        key={index}
+                        label={tag}
+                        size="small"
+                        variant="outlined"
+                        color="info"
+                        onClick={() => handleAddSuggestedTag(tag)}
+                        icon={<Iconify icon="solar:add-circle-linear" width={14} />}
+                        sx={{ mr: 0.5, mb: 0.5, cursor: 'pointer' }}
+                      />
+                    ))}
+                  </Stack>
+                </Box>
+              )}
+            </Box>
             
             <RHFSwitch
               name="visibility"
-              label="Afficher cette compétence sur le CV"
-              labelPlacement="start"
-              sx={{
-                mt: 1,
-                mx: 0,
-                width: 1,
-                justifyContent: 'space-between',
-              }}
+              label="Afficher sur le CV"
+              labelPlacement="end"
+              helperText="Désactiver pour masquer cette compétence sur certains CV"
             />
           </Box>
         </DialogContent>
         
-        <DialogActions sx={{ px: 3, pb: 3, pt: 3 }}>
+        <DialogActions sx={{ px: 3, pb: 3, pt: 2 }}>
           <Button
             variant="outlined"
             color="inherit"
             onClick={onClose}
+            disabled={isSubmitting}
           >
             Annuler
           </Button>
@@ -273,9 +290,8 @@ export default function SkillDialog({ skill, open, onClose, onSubmit }) {
             type="submit"
             variant="contained"
             loading={isSubmitting}
-            disabled={!isDirty}
           >
-            {isEdit ? 'Mettre à jour' : 'Ajouter'}
+            {isEdit ? 'Mettre à jour' : 'Créer'}
           </LoadingButton>
         </DialogActions>
       </Form>

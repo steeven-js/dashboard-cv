@@ -295,7 +295,7 @@ Mettre en place un système de catégorisation flexible :
 10. Ajouter un système de catégorisation hiérarchique (catégories et sous-catégories)
 ```
 
-[ ] ### Étape 6 : Système de tags pour faciliter la correspondance
+[x] ### Étape 6 : Système de tags pour faciliter la correspondance
 
 ```
 Développer un système de tags pour les compétences :
